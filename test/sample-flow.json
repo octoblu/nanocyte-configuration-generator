@@ -1,0 +1,144 @@
+{
+  "flowId": "dd3d787a-7833-4581-9287-3ad2c5a1273a",
+  "token": "200b7bd1b413966dca56d1a3f7fa9f9c27eb36bd",
+  "name": "Bonzai",
+  "resource": {
+    "nodeType": "flow",
+    "owner": {
+      "uuid": "af354bd1-988f-4905-bba7-98b87f84eabe",
+      "nodeType": "user"
+    }
+  },
+  "_id": "55ee508d9ff0780f00a5976b",
+  "hash": "198de242",
+  "nodes": [
+    {
+      "id": "8a8da890-55d6-11e5-bd83-1349dc09f6d6",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "once": false,
+      "name": "Trigger",
+      "class": "trigger",
+      "helpText": "Send a static message. Can also be triggered from other flows",
+      "category": "operation",
+      "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:trigger",
+      "defaults": {
+        "payloadType": "date",
+        "once": false
+      },
+      "input": 0,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/button_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 609.9398803710938,
+      "y": 517.0806884765625,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6",
+      "resourceType": "flow-node",
+      "active": true,
+      "debug": true,
+      "complete": false,
+      "name": "Debug",
+      "class": "debug",
+      "helpText": "Display the contents of the messages it receives in the debug panel",
+      "category": "operation",
+      "uuid": "37f0b88e-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:debug",
+      "defaults": {
+        "active": true,
+        "debug": true,
+        "complete": false
+      },
+      "color": "#87a980",
+      "input": 1,
+      "output": 0,
+      "align": "right",
+      "formTemplatePath": "/pages/node_forms/debug_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/debug.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 827.5084838867188,
+      "y": 520.1118774414062,
+      "needsConfiguration": false,
+      "needsSetup": false
+    },
+    {
+      "id": "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d",
+      "resourceType": "flow-node",
+      "payloadType": "date",
+      "repeat": 1000,
+      "on": true,
+      "name": "Interval",
+      "class": "interval",
+      "helpText": "Emit a message at the specified interval.",
+      "category": "operation",
+      "uuid": "37f0a966-2f17-11e4-9617-a6c5e4d22fb7",
+      "type": "operation:interval",
+      "defaults": {
+        "payloadType": "date",
+        "repeat": 1000,
+        "on": true
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/interval_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/operation/interval.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 701.1630249023438,
+      "y": 405.0007629394531,
+      "needsConfiguration": false,
+      "needsSetup": false
+    }
+  ],
+  "links": [
+    {
+      "from": "8a8da890-55d6-11e5-bd83-1349dc09f6d6",
+      "fromPort": 0,
+      "to": "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6",
+      "toPort": 0
+    },
+    {
+      "from": "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d",
+      "fromPort": 0,
+      "to": "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6",
+      "toPort": 0
+    }
+  ],
+  "online": true,
+  "deployed": true,
+  "selectedFlowNode": {
+    "id": "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d",
+    "resourceType": "flow-node",
+    "payloadType": "date",
+    "repeat": 1000,
+    "on": true,
+    "name": "Interval",
+    "class": "interval",
+    "helpText": "Emit a message at the specified interval.",
+    "category": "operation",
+    "uuid": "37f0a966-2f17-11e4-9617-a6c5e4d22fb7",
+    "type": "operation:interval",
+    "defaults": {
+      "payloadType": "date",
+      "repeat": 1000,
+      "on": true
+    },
+    "input": 1,
+    "output": 1,
+    "formTemplatePath": "/pages/node_forms/interval_form.html",
+    "logo": "https://ds78apnml6was.cloudfront.net/operation/interval.svg",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 701.1630249023438,
+    "y": 405.0007629394531
+  },
+  "selectedLink": null,
+  "activated": false
+}

@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+- '0.10'
+deploy:
+  provider: npm
+  email: sqrt@octoblu.com
+  api_key:
+    secure: QA5lLYqK6uoYRvrb42cIxSWNty3WmmYFo7I7s2L3N4YbLNXXzjrIk/JTJXCO8CW5/ECfYOzR7hcZhR0kQUmwDhQjHJWP4/eHCDOnE+zgBc6RJlq4ZJgQLqpz/QAmCxszOCIcR6poehgMlE3+U9leto9xQnHAy4l2wECsvVsXryAaywdXe57MWiFAoGjF89RncMG660lGbAgkpxFZFLLLjtOVIMaadmdh/MCkpUsLPUIrkzWcDRaKefvwtU6bPmXafBYGYHcRRs07yQMo0SJ03TEDXAm3AJxxxRWl5HlUftwB4z9NIIb58XP1jwhiktzrIynBaMkB7J6ghn9btdHZGlSY7jh/gtUDNSgLYFZdiQNXV8s6T6/mZE81FHscOG2QSx40dVNCBFai++QSsV43TKKOzwNi9PbmGtIbjebCuFECiajKk/MZd963+hxWgBdYM2LT5m76G58+goA+1OICgfrePNohr1eyHg7/zLEKZMAmMaUxo5w5TKDqR1ai75zqvIC+R3cOSzBvLAPsGt52x4M9mKqZFNUCGqSXzqBcUbx+4ipwOrKAxOFTeWrYqHvPxH9F8cqfqmObKvKIlGIVQON6ZtWg/bJqOIL0jrsIPrGNNtA2YBaiGswRKQO45jtpfsayy9gnCJWcd+xwRzX+a8OOVvMwszw9B3MafUa134w=
+  on:
+    tags: true
+    repo: octoblu/nanocyte-configuration-generator
+    all_branches: true

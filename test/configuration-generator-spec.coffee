@@ -5,10 +5,11 @@ sampleFlow = require './data/sample-flow.json'
 describe 'ConfigurationGenerator', ->
   describe '-> configure', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator sampleFlow
+      @sut = new ConfigurationGenerator
+
     describe 'when called', ->
       beforeEach (done) ->
-        @sut.configure (@error, @flowConfig) => done()
+        @sut.configure sampleFlow, (@error, @flowConfig) => done()
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
         expect(@flowConfig).to.contain.keys [
@@ -63,10 +64,11 @@ describe 'ConfigurationGenerator', ->
       it 'should configure the debug node with default data', ->
         expect(@flowConfig['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'].data).to.deep.equal {}
 
-  describe '-> buildLinks', ->
+  describe '-> _buildLinks', ->
     describe 'when one node is linked to another', ->
       beforeEach ->
-        @sut = new ConfigurationGenerator links: [
+        @sut = new ConfigurationGenerator
+        links = [
           from: 'some-node-uuid'
           to: 'some-other-node-uuid'
         ]
@@ -77,7 +79,7 @@ describe 'ConfigurationGenerator', ->
               id: 'some-node-uuid'
               class: 'fluff'
 
-        @result = @sut.buildLinks flowConfig
+        @result = @sut._buildLinks links, flowConfig
 
       it 'should set the flow links on the router', ->
         links =
@@ -89,7 +91,8 @@ describe 'ConfigurationGenerator', ->
 
     describe 'when a different node is linked to another', ->
       beforeEach ->
-        @sut = new ConfigurationGenerator links: [
+        @sut = new ConfigurationGenerator
+        links = [
           from: 'some-other-node-uuid'
           to: 'yet-some-other-node-uuid'
         ]
@@ -100,7 +103,7 @@ describe 'ConfigurationGenerator', ->
               id: 'some-other-node-uuid'
               class: 'tuff'
 
-        @result = @sut.buildLinks flowConfig
+        @result = @sut._buildLinks links, flowConfig
 
       it 'should set the flow links on the router', ->
         links =
@@ -112,7 +115,8 @@ describe 'ConfigurationGenerator', ->
 
     describe 'when one node is linked to two nodes', ->
       beforeEach ->
-        @sut = new ConfigurationGenerator links: [
+        @sut = new ConfigurationGenerator
+        links = [
           from: 'some-node-uuid'
           to: 'some-other-node-uuid'
         ,
@@ -126,7 +130,7 @@ describe 'ConfigurationGenerator', ->
               id: 'some-node-uuid'
               class: 'fluff'
 
-        @result = @sut.buildLinks flowConfig
+        @result = @sut._buildLinks links, flowConfig
 
       it 'should set the flow links on the router', ->
         links =
@@ -138,7 +142,8 @@ describe 'ConfigurationGenerator', ->
 
     describe 'when two nodes are linked to two nodes', ->
       beforeEach ->
-        @sut = new ConfigurationGenerator links: [
+        @sut = new ConfigurationGenerator
+        links = [
           from: 'some-node-uuid'
           to: 'some-other-node-uuid'
         ,
@@ -163,7 +168,7 @@ describe 'ConfigurationGenerator', ->
               id: 'some-different-node-uuid'
               class: 'ruff'
 
-        @result = @sut.buildLinks flowConfig
+        @result = @sut._buildLinks links, flowConfig
 
       it 'should set the flow links on the router', ->
         links =
@@ -178,7 +183,9 @@ describe 'ConfigurationGenerator', ->
 
     describe 'when one node is linked to a virtual node', ->
       beforeEach ->
-        @sut = new ConfigurationGenerator links: []
+        @sut = new ConfigurationGenerator
+
+        links = []
 
         flowConfig =
           'some-node-uuid':
@@ -186,7 +193,7 @@ describe 'ConfigurationGenerator', ->
               id: 'some-node-uuid'
               class: 'debug'
 
-        @result = @sut.buildLinks flowConfig
+        @result = @sut._buildLinks links, flowConfig
 
       it 'should set the flow links on the router', ->
         links =

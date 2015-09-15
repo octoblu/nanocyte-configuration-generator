@@ -14,29 +14,28 @@ VIRTUAL_NODES =
     data: {}
 
 class ConfigurationGenerator
-  constructor: (@flow) ->
+  configure: (flow, callback=->) =>
+    flowNodes = _.indexBy flow.nodes, 'id'
+    flowConfig = _.mapValues flowNodes, (nodeConfig) =>
+      config: nodeConfig
+      data: {}
+    flowConfig = _.assign flowConfig, @_setupRouter(flow, flowConfig)
+    flowConfig = _.assign flowConfig, VIRTUAL_NODES
+    callback null, flowConfig
 
-  setupRouter: (flowNodes) =>
+  _setupRouter: (flow, flowNodes) =>
     router:
-      config: @buildLinks flowNodes
+      config: @_buildLinks flow.links, flowNodes
 
-  buildLinks: (flowNodes) =>
+  _buildLinks: (links, flowNodes) =>
     _.mapValues flowNodes, (nodeConfig) =>
-      links = _.filter @flow.links, from: nodeConfig.config?.id
-      linkedTo = _.pluck links, 'to'
+      nodeLinks = _.filter links, from: nodeConfig.config?.id
+      linkedTo = _.pluck nodeLinks, 'to'
 
       linkedTo = ['meshblu-output'] if nodeConfig.config?.class == 'debug'
 
       type: "nanocyte-node-#{nodeConfig.config?.class}"
       linkedTo: linkedTo
 
-  configure: (callback=->) =>
-    flowNodes = _.indexBy @flow.nodes, 'id'
-    flowConfig = _.mapValues flowNodes, (nodeConfig) =>
-      config: nodeConfig
-      data: {}
-    flowConfig = _.assign flowConfig, @setupRouter(flowConfig)
-    flowConfig = _.assign flowConfig, VIRTUAL_NODES
-    callback null, flowConfig
 
 module.exports = ConfigurationGenerator

@@ -4,7 +4,7 @@
   "description": "Generate Nanocyte configuration from an Octoblu flow",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "istanbul cover _mocha -- -R spec"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,9 @@
   "homepage": "https://github.com/octoblu/nanocyte-configuration-generator#readme",
   "devDependencies": {
     "chai": "^3.2.0",
+    "coffee-coverage": "^0.6.3",
     "coffee-script": "^1.10.0",
+    "istanbul": "^0.3.20",
     "mocha": "^2.3.2",
     "sinon": "^1.16.1",
     "sinon-chai": "^2.8.0"

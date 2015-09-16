@@ -71,6 +71,7 @@ describe 'ConfigurationGenerator', ->
         }
 
         expect(@flowConfig.router.config).to.deep.equal links
+        expect(@flowConfig['engine-input'].config).to.deep.equal links
 
       it 'should configure the debug node with the proper config', ->
         origNodeConfig = _.findWhere sampleFlow.nodes, id: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'

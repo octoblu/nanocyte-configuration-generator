@@ -7,6 +7,9 @@ VIRTUAL_NODES =
   'engine-output':
     config: {}
     data: {}
+  'router':
+    config: {}
+    data: {}
   'start':
     config: {}
     data: {}
@@ -26,13 +29,16 @@ class ConfigurationGenerator
     flowConfig = _.mapValues flowNodes, (nodeConfig) =>
       config: nodeConfig
       data: {}
-    flowConfig = _.assign flowConfig, @_setupRouter(flow, flowConfig)
-    flowConfig = _.assign flowConfig, virtualNodes
-    callback null, flowConfig
 
-  _setupRouter: (flow, flowNodes) =>
-    router:
-      config: @_buildLinks flow.links, flowNodes
+    flowConfig = _.assign flowConfig, virtualNodes
+    flowConfig.router.config = @_buildLinks(flow.links, flowConfig)
+    flowConfig['engine-input'] = _.cloneDeep flowConfig.router
+    console.log flowConfig
+    callback null, flowConfig
+  #
+  # _setupRouter: (flow, flowNodes) =>
+  #   router:
+  #     config: @_buildLinks flow.links, flowNodes
 
   _buildLinks: (links, flowNodes) =>
     flowNodeMap = {}

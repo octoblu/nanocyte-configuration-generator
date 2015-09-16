@@ -15,7 +15,9 @@ VIRTUAL_NODES =
     data: {}
 
 class ConfigurationGenerator
-  constructor: (@meshbluJSON={}) ->
+  constructor: (@meshbluJSON={}, dependencies={}) ->
+    {@UUID} = dependencies
+    @UUID ?= require 'node-uuid'
 
   configure: (flow, token, callback=->) =>
     virtualNodes = _.cloneDeep(VIRTUAL_NODES)
@@ -33,14 +35,43 @@ class ConfigurationGenerator
       config: @_buildLinks flow.links, flowNodes
 
   _buildLinks: (links, flowNodes) =>
-    _.mapValues flowNodes, (nodeConfig) =>
-      nodeLinks = _.filter links, from: nodeConfig.config?.id
-      linkedTo = _.pluck nodeLinks, 'to'
+    flowNodeMap = {}
+    result = {}
+    _.each flowNodes, (nodeConfig, nodeUuid) =>
+      config = nodeConfig.config ? {}
+      nanocyteConfig = config.nanocyte ? {}
+      composedOf = nanocyteConfig.composedOf ? {}
 
-      linkedTo = ['meshblu-output'] if nodeConfig.config?.class == 'debug'
+      _.each composedOf, (template, templateId) =>
+        instanceId = @UUID.v1()
+        composedConfig = _.cloneDeep template
+        composedConfig.nodeUuid = nodeUuid
+        composedConfig.templateId = templateId
+        composedConfig.debug = config.debug
+        flowNodeMap[instanceId] = composedConfig
 
-      type: "nanocyte-node-#{nodeConfig.config?.class}"
-      linkedTo: linkedTo
+    _.each flowNodeMap, (config, instanceId) =>
+      nodeLinks = _.filter links, from: config.nodeUuid
+      templateLinks = config.linkedTo
+      linkedTo = []
+      if config.linkedToNext
+        linkUuids = _.pluck nodeLinks, 'to'
+        _.each flowNodeMap, (data, key) =>
+          if _.contains linkUuids, data.nodeUuid
+            linkedTo.push key
 
+      _.each config.linkedTo, (templateLinkId) =>
+        _.each flowNodeMap, (data, key) =>
+          if data.nodeUuid == config.nodeUuid && data.templateId == templateLinkId
+            linkedTo.push key
+
+      linkedTo.push 'engine-output', 'engine-pulse' if config.linkedToOutput
+      linkedTo.push 'engine-data' if config.linkedToData
+      linkedTo.push 'engine-debug' if config.debug
+
+      result[instanceId] =
+        type: config.type
+        linkedTo: linkedTo
+    result
 
 module.exports = ConfigurationGenerator

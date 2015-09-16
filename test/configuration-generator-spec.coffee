@@ -5,11 +5,11 @@ sampleFlow = require './data/sample-flow.json'
 describe 'ConfigurationGenerator', ->
   describe '-> configure', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator
+      @sut = new ConfigurationGenerator server: 'some-server'
 
     describe 'when called', ->
       beforeEach (done) ->
-        @sut.configure sampleFlow, (@error, @flowConfig) => done()
+        @sut.configure sampleFlow, 'some-token', (@error, @flowConfig) => done()
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
         expect(@flowConfig).to.contain.keys [
@@ -17,6 +17,9 @@ describe 'ConfigurationGenerator', ->
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
         ]
+
+      it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
+        expect(@flowConfig['meshblu-output'].config).to.deep.equal uuid: sampleFlow.flowId, token: 'some-token', server: 'some-server'
 
       it 'should return a flow configuration with virtual nodes', ->
         expect(@flowConfig).to.contain.keys [

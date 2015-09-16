@@ -1,4 +1,5 @@
 _ = require 'lodash'
+
 VIRTUAL_NODES =
   'meshblu-input':
     config: {}
@@ -14,13 +15,17 @@ VIRTUAL_NODES =
     data: {}
 
 class ConfigurationGenerator
-  configure: (flow, callback=->) =>
+  constructor: (@meshbluJSON={}) ->
+
+  configure: (flow, token, callback=->) =>
+    virtualNodes = _.cloneDeep(VIRTUAL_NODES)
+    virtualNodes['meshblu-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
     flowNodes = _.indexBy flow.nodes, 'id'
     flowConfig = _.mapValues flowNodes, (nodeConfig) =>
       config: nodeConfig
       data: {}
     flowConfig = _.assign flowConfig, @_setupRouter(flow, flowConfig)
-    flowConfig = _.assign flowConfig, VIRTUAL_NODES
+    flowConfig = _.assign flowConfig, virtualNodes
     callback null, flowConfig
 
   _setupRouter: (flow, flowNodes) =>

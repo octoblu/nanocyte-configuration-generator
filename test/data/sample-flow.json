@@ -38,9 +38,13 @@
       "needsConfiguration": false,
       "needsSetup": false,
       "nanocyte": {
-        "type": "nanocyte-node-trigger",
-        "linkedToInput": true,
-        "linkedToNext": true
+        "composedOf": {
+          "Trigger": {
+            "type": "nanocyte-node-trigger",
+            "linkedToInput": true,
+            "linkedToNext": true
+          }
+        }
       }
     },
     {
@@ -73,8 +77,12 @@
       "needsConfiguration": false,
       "needsSetup": false,
       "nanocyte": {
-        "type": "nanocyte-node-debug",
-        "linkedToPrev": true
+        "composedOf": {
+          "Debug": {
+            "type": "nanocyte-node-debug",
+            "linkedToPrev": true
+          }
+        }
       }
     },
     {
@@ -105,9 +113,13 @@
       "needsConfiguration": false,
       "needsSetup": false,
       "nanocyte": {
-        "type": "nanocyte-node-interval",
-        "linkedToNext": true,
-        "linkedToInput": true
+        "composedOf": {
+          "Interval-1": {
+            "type": "nanocyte-node-interval",
+            "linkedToNext": true,
+            "linkedToInput": true
+          }
+        }
       }
     }
   ],

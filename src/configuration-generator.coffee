@@ -1,10 +1,10 @@
 _ = require 'lodash'
 
 VIRTUAL_NODES =
-  'meshblu-input':
+  'engine-input':
     config: {}
     data: {}
-  'meshblu-output':
+  'engine-output':
     config: {}
     data: {}
   'start':
@@ -21,7 +21,7 @@ class ConfigurationGenerator
 
   configure: (flow, token, callback=->) =>
     virtualNodes = _.cloneDeep(VIRTUAL_NODES)
-    virtualNodes['meshblu-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
+    virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
     flowNodes = _.indexBy flow.nodes, 'id'
     flowConfig = _.mapValues flowNodes, (nodeConfig) =>
       config: nodeConfig

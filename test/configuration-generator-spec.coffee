@@ -18,6 +18,9 @@ describe 'ConfigurationGenerator', ->
 
     describe 'when called', ->
       beforeEach (done) ->
+        @UUID.v1.onCall(0).returns 'node-trigger-instance'
+        @UUID.v1.onCall(1).returns 'node-debug-instance'
+        @UUID.v1.onCall(2).returns 'node-interval-instance'
         @sut.configure sampleFlow, 'some-token', (@error, @flowConfig) => done()
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
@@ -28,12 +31,12 @@ describe 'ConfigurationGenerator', ->
         ]
 
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
-        expect(@flowConfig['meshblu-output'].config).to.deep.equal uuid: sampleFlow.flowId, token: 'some-token', server: 'some-server'
+        expect(@flowConfig['engine-output'].config).to.deep.equal uuid: sampleFlow.flowId, token: 'some-token', server: 'some-server'
 
       it 'should return a flow configuration with virtual nodes', ->
         expect(@flowConfig).to.contain.keys [
-          'meshblu-input'
-          'meshblu-output'
+          'engine-input'
+          'engine-output'
           'router'
           'start'
           'stop'
@@ -44,26 +47,26 @@ describe 'ConfigurationGenerator', ->
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
-          'meshblu-input'
-          'meshblu-output'
+          'engine-input'
+          'engine-output'
           'router'
           'start'
           'stop'
         ]
 
-      xit 'should set the flow links on the router', ->
+      it 'should set the flow links on the router', ->
         links = {
-          '8a8da890-55d6-11e5-bd83-1349dc09f6d6': {
+          'node-trigger-instance': {
             type: 'nanocyte-node-trigger',
-            linkedTo: ['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6']
+            linkedTo: ['node-debug-instance']
           },
-          '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6': {
+          'node-debug-instance': {
             type: 'nanocyte-node-debug',
             linkedTo: ['engine-debug']
           },
-          '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d': {
+          'node-interval-instance': {
             type: 'nanocyte-node-interval',
-            linkedTo: ['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6']
+            linkedTo: ['node-debug-instance']
           }
         }
 

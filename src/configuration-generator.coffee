@@ -65,6 +65,18 @@ class ConfigurationGenerator
             linkedTo: []
           result[nodeUuid].linkedTo.push instanceId
 
+        if composedConfig.linkedFromStart
+          result['engine-start'] ?=
+            type: 'engine-start'
+            linkedTo: []
+          result['engine-start'].linkedTo.push instanceId
+
+        if composedConfig.linkedFromStop
+          result['engine-stop'] ?=
+            type: 'engine-stop'
+            linkedTo: []
+          result['engine-stop'].linkedTo.push instanceId
+
         flowNodeMap[instanceId] = composedConfig
 
     _.each flowNodeMap, (config, instanceId) =>
@@ -86,6 +98,8 @@ class ConfigurationGenerator
       linkedTo.push 'engine-pulse' if config.linkedToNext
       linkedTo.push 'engine-data' if config.linkedToData
       linkedTo.push 'engine-debug' if config.debug
+
+
 
       result[instanceId] =
         type: config.type

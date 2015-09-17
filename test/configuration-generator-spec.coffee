@@ -614,3 +614,83 @@ describe 'ConfigurationGenerator', ->
             linkedTo: []
 
         expect(@result).to.deep.equal links
+
+    describe 'when linkedToStart and linkedToStop', ->
+      beforeEach ->
+        links = [
+          from: 'some-interval-uuid'
+          to: 'some-debug-uuid'
+        ]
+
+        flowConfig =
+          'some-interval-uuid':
+            config:
+              id: 'some-interval-uuid'
+              nanocyte:
+                type: 'nanocyte-node-interval'
+                composedOf:
+                  'interval-1':
+                    type: 'nanocyte-node-interval'
+                    linkedToNext: true
+                    linkedToInput: true
+                  'interval-start':
+                    type: 'nanocyte-node-interval-start'
+                    linkedFromStart: true
+                  'interval-stop':
+                    type: 'nanocyte-node-interval-stop'
+                    linkedFromStop: true
+          'some-debug-uuid':
+            config:
+              id: 'some-debug-uuid'
+              debug: true
+              nanocyte:
+                type: 'nanocyte-node-debug'
+                composedOf:
+                  'debug-1':
+                    type: 'nanocyte-node-debug'
+                    linkedToPrev: true
+
+        @UUID.v1.onCall(0).returns 'interval-instance-uuid'
+        @UUID.v1.onCall(1).returns 'interval-start-instance-uuid'
+        @UUID.v1.onCall(2).returns 'interval-stop-instance-uuid'
+        @UUID.v1.onCall(3).returns 'debug-instance-uuid'
+
+        @result = @sut._buildLinks links, flowConfig
+
+      it 'should set the flow links on the router', ->
+        links =
+          'engine-start':
+            type: 'engine-start'
+            linkedTo: ['interval-start-instance-uuid']
+          'engine-stop':
+            type: 'engine-stop'
+            linkedTo: ['interval-stop-instance-uuid']
+          'some-interval-uuid':
+            type: 'engine-input'
+            linkedTo: ['interval-instance-uuid']
+          'interval-instance-uuid':
+            type: 'nanocyte-node-interval'
+            linkedTo: ['debug-instance-uuid','engine-pulse']
+          'interval-start-instance-uuid':
+            type: 'nanocyte-node-interval-start'
+            linkedTo: []
+          'interval-stop-instance-uuid':
+            type: 'nanocyte-node-interval-stop'
+            linkedTo: []
+          'debug-instance-uuid':
+            linkedTo: ["engine-debug"]
+            type: "nanocyte-node-debug"
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+
+        expect(@result).to.deep.equal links

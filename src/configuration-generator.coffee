@@ -1,3 +1,4 @@
+debug = require('debug')('nanocyte-configuration-generator')
 _ = require 'lodash'
 
 VIRTUAL_NODES =
@@ -32,9 +33,11 @@ class ConfigurationGenerator
     @UUID ?= require 'node-uuid'
 
   configure: (flow, token, callback=->) =>
+    debug 'configuring flow...', flow
     virtualNodes = _.cloneDeep(VIRTUAL_NODES)
     virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
     flowNodes = _.indexBy flow.nodes, 'id'
+    debug 'flowNodes', flowNodes
     flowConfig = _.mapValues flowNodes, (nodeConfig) =>
       config: nodeConfig
       data: {}
@@ -45,6 +48,7 @@ class ConfigurationGenerator
       callback null, flowConfig
 
   _buildLinks: (links, flowNodes) =>
+    debug 'building links with', links
     flowNodeMap = {}
     result = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
@@ -106,7 +110,7 @@ class ConfigurationGenerator
         linkedTo: linkedTo
 
     @_addBlankVirtualNodesToRoutes result
-
+    debug 'router config is', result
     result
 
   _addBlankVirtualNodesToRoutes: (config) =>

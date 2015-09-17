@@ -83,7 +83,7 @@ describe 'ConfigurationGenerator', ->
           'engine-pulse':
             type: 'engine-pulse'
             linkedTo: []
-            
+
         expect(@flowConfig.router.config).to.deep.equal links
 
       it 'should configure the debug node with the proper config', ->
@@ -122,7 +122,7 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'fluff-1':
                     type: 'nanocyte-node-fluff'
-                    linkedToNext: true
+                    linkedToPrev: true
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
@@ -176,7 +176,7 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'tuff-2':
                     type: 'nanocyte-node-tuff'
-                    linkedToNext: true
+                    linkedToPrev: true
 
         @UUID.v1.onCall(0).returns 'some-other-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'yet-some-other-node-instance-uuid'
@@ -233,7 +233,7 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'fluff-1':
                     type: 'nanocyte-node-fluff'
-                    linkedToNext: true
+                    linkedToPrev: true
           'another-node-uuid':
             config:
               id: 'another-node-uuid'
@@ -242,7 +242,7 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'fluff-1':
                     type: 'nanocyte-node-fluff'
-                    linkedToNext: true
+                    linkedToPrev: true
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
@@ -309,6 +309,7 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'stuffy-1':
                     type: 'nanocyte-node-stuff'
+                    linkedToPrev: true
           'some-different-node-uuid':
             config:
               id: 'some-different-node-uuid'
@@ -326,6 +327,7 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'buffy-1':
                     type: 'nanocyte-node-buff'
+                    linkedToPrev: true
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
@@ -519,11 +521,24 @@ describe 'ConfigurationGenerator', ->
     describe 'when linkedToNext', ->
       beforeEach ->
         links = [
+          from: 'some-trigger-uuid'
+          to: 'some-throttle-uuid'
+        ,
           from: 'some-throttle-uuid'
           to: 'some-debug-uuid'
         ]
 
         flowConfig =
+          'some-trigger-uuid':
+            config:
+              id: 'some-trigger-uuid'
+              nanocyte:
+                type: 'nanocyte-node-trigger'
+                composedOf:
+                  'trigger-1':
+                    type: 'nanocyte-node-trigger'
+                    linkedToInput: true
+                    linkedToNext: true
           'some-throttle-uuid':
             config:
               id: 'some-throttle-uuid'
@@ -552,16 +567,24 @@ describe 'ConfigurationGenerator', ->
                 composedOf:
                   'debug-1':
                     type: 'nanocyte-node-debug'
+                    linkedToPrev: true
 
-        @UUID.v1.onCall(0).returns 'throttle-push-instance-uuid'
-        @UUID.v1.onCall(1).returns 'throttle-pop-instance-uuid'
-        @UUID.v1.onCall(2).returns 'throttle-emit-instance-uuid'
-        @UUID.v1.onCall(3).returns 'debug-instance-uuid'
+        @UUID.v1.onCall(0).returns 'trigger-instance-uuid'
+        @UUID.v1.onCall(1).returns 'throttle-push-instance-uuid'
+        @UUID.v1.onCall(2).returns 'throttle-pop-instance-uuid'
+        @UUID.v1.onCall(3).returns 'throttle-emit-instance-uuid'
+        @UUID.v1.onCall(4).returns 'debug-instance-uuid'
 
         @result = @sut._buildLinks links, flowConfig
 
       it 'should set the flow links on the router', ->
         links =
+          'some-trigger-uuid':
+            linkedTo: ['trigger-instance-uuid']
+            type: 'engine-input'
+          'trigger-instance-uuid':
+            linkedTo: ['throttle-push-instance-uuid']
+            type: 'nanocyte-node-trigger'
           'some-throttle-uuid':
             type: 'engine-input'
             linkedTo: ['throttle-pop-instance-uuid', 'throttle-emit-instance-uuid']

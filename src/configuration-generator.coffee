@@ -75,7 +75,7 @@ class ConfigurationGenerator
         linkUuids = _.pluck nodeLinks, 'to'
         _.each flowNodeMap, (data, key) =>
           if _.contains linkUuids, data.nodeUuid
-            linkedTo.push key
+            linkedTo.push key if data.linkedToPrev
 
       _.each config.linkedTo, (templateLinkId) =>
         _.each flowNodeMap, (data, key) =>

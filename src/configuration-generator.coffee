@@ -7,6 +7,15 @@ VIRTUAL_NODES =
   'engine-output':
     config: {}
     data: {}
+  'engine-data':
+    config: {}
+    data: {}
+  'engine-debug':
+    config: {}
+    data: {}
+  'engine-pulse':
+    config: {}
+    data: {}
   'router':
     config: {}
     data: {}
@@ -32,13 +41,8 @@ class ConfigurationGenerator
 
     flowConfig = _.assign flowConfig, virtualNodes
     flowConfig.router.config = @_buildLinks(flow.links, flowConfig)
-    flowConfig['engine-input'] = _.cloneDeep flowConfig.router
-    console.log flowConfig
-    callback null, flowConfig
-  #
-  # _setupRouter: (flow, flowNodes) =>
-  #   router:
-  #     config: @_buildLinks flow.links, flowNodes
+    _.defer =>
+      callback null, flowConfig
 
   _buildLinks: (links, flowNodes) =>
     flowNodeMap = {}
@@ -54,6 +58,13 @@ class ConfigurationGenerator
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId
         composedConfig.debug = config.debug
+
+        if composedConfig.linkedToInput
+          result[nodeUuid] ?=
+            type: 'engine-input'
+            linkedTo: []
+          result[nodeUuid].linkedTo.push instanceId
+
         flowNodeMap[instanceId] = composedConfig
 
     _.each flowNodeMap, (config, instanceId) =>
@@ -78,6 +89,20 @@ class ConfigurationGenerator
       result[instanceId] =
         type: config.type
         linkedTo: linkedTo
+
+    result['engine-output'] =
+      type: 'engine-output'
+      linkedTo: []
+    result['engine-debug'] =
+      type: 'engine-debug'
+      linkedTo: []
+    result['engine-pulse'] =
+      type: 'engine-pulse'
+      linkedTo: []
+    result['engine-data'] =
+      type: 'engine-data'
+      linkedTo: []
+
     result
 
 module.exports = ConfigurationGenerator

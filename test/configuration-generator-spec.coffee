@@ -55,23 +55,36 @@ describe 'ConfigurationGenerator', ->
         ]
 
       it 'should set the flow links on the router', ->
-        links = {
-          'node-trigger-instance': {
-            type: 'nanocyte-node-trigger',
+        links =
+          '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d':
+            type: 'engine-input'
+            linkedTo: ['node-interval-instance']
+          '8a8da890-55d6-11e5-bd83-1349dc09f6d6':
+            type: 'engine-input'
+            linkedTo: ['node-trigger-instance']
+          'node-trigger-instance':
+            type: 'nanocyte-node-trigger'
             linkedTo: ['node-debug-instance']
-          },
-          'node-debug-instance': {
-            type: 'nanocyte-node-debug',
+          'node-debug-instance':
+            type: 'nanocyte-node-debug'
             linkedTo: ['engine-debug']
-          },
-          'node-interval-instance': {
-            type: 'nanocyte-node-interval',
+          'node-interval-instance':
+            type: 'nanocyte-node-interval'
             linkedTo: ['node-debug-instance']
-          }
-        }
-
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+            
         expect(@flowConfig.router.config).to.deep.equal links
-        expect(@flowConfig['engine-input'].config).to.deep.equal links
 
       it 'should configure the debug node with the proper config', ->
         origNodeConfig = _.findWhere sampleFlow.nodes, id: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
@@ -123,6 +136,18 @@ describe 'ConfigurationGenerator', ->
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-fluff'
             linkedTo: []
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
 
         expect(@result).to.deep.equal links
 
@@ -164,6 +189,18 @@ describe 'ConfigurationGenerator', ->
             linkedTo: ['yet-some-other-node-instance-uuid']
           'yet-some-other-node-instance-uuid':
             type: 'nanocyte-node-tuff'
+            linkedTo: []
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
             linkedTo: []
 
         expect(@result).to.deep.equal links
@@ -223,6 +260,19 @@ describe 'ConfigurationGenerator', ->
           'another-node-instance-uuid':
             linkedTo: []
             type: 'nanocyte-node-fluff'
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+
         expect(@result).to.deep.equal links
 
     describe 'when two nodes are linked to two nodes', ->
@@ -297,6 +347,19 @@ describe 'ConfigurationGenerator', ->
           'another-node-instance-uuid':
             linkedTo: []
             type: 'nanocyte-node-buff'
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+
         expect(@result).to.deep.equal links
 
     describe 'when one node is linked to a virtual node', ->
@@ -322,6 +385,18 @@ describe 'ConfigurationGenerator', ->
           'some-node-instance-uuid':
             type: 'nanocyte-node-debug'
             linkedTo: ['engine-output', 'engine-pulse']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
 
         expect(@result).to.deep.equal links
 
@@ -349,6 +424,18 @@ describe 'ConfigurationGenerator', ->
           'some-node-instance-uuid':
             type: 'nanocyte-node-bar'
             linkedTo: ['engine-debug']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
 
         expect(@result).to.deep.equal links
 
@@ -375,6 +462,18 @@ describe 'ConfigurationGenerator', ->
           'some-node-instance-uuid':
             type: 'nanocyte-node-bar'
             linkedTo: ['engine-output', 'engine-pulse']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
 
         expect(@result).to.deep.equal links
 
@@ -402,6 +501,18 @@ describe 'ConfigurationGenerator', ->
           'some-node-instance-uuid':
             type: 'nanocyte-node-save-me'
             linkedTo: ['engine-data']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
 
         expect(@result).to.deep.equal links
 
@@ -451,6 +562,9 @@ describe 'ConfigurationGenerator', ->
 
       it 'should set the flow links on the router', ->
         links =
+          'some-throttle-uuid':
+            type: 'engine-input'
+            linkedTo: ['throttle-pop-instance-uuid', 'throttle-emit-instance-uuid']
           'throttle-push-instance-uuid':
             type: 'nanocyte-node-throttle-push'
             linkedTo: ['engine-data']
@@ -463,5 +577,17 @@ describe 'ConfigurationGenerator', ->
           'debug-instance-uuid':
             type: 'nanocyte-node-debug'
             linkedTo: ['engine-debug']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
 
         expect(@result).to.deep.equal links

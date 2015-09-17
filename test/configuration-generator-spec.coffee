@@ -64,13 +64,13 @@ describe 'ConfigurationGenerator', ->
             linkedTo: ['node-trigger-instance']
           'node-trigger-instance':
             type: 'nanocyte-node-trigger'
-            linkedTo: ['node-debug-instance']
+            linkedTo: ['node-debug-instance', 'engine-pulse']
           'node-debug-instance':
             type: 'nanocyte-node-debug'
             linkedTo: ['engine-debug']
           'node-interval-instance':
             type: 'nanocyte-node-interval'
-            linkedTo: ['node-debug-instance']
+            linkedTo: ['node-debug-instance', 'engine-pulse']
           'engine-output':
             type: 'engine-output'
             linkedTo: []
@@ -132,7 +132,7 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-fluff'
-            linkedTo: ['some-other-node-instance-uuid']
+            linkedTo: ['some-other-node-instance-uuid', 'engine-pulse']
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-fluff'
             linkedTo: []
@@ -186,7 +186,7 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-tuff'
-            linkedTo: ['yet-some-other-node-instance-uuid']
+            linkedTo: ['yet-some-other-node-instance-uuid', 'engine-pulse']
           'yet-some-other-node-instance-uuid':
             type: 'nanocyte-node-tuff'
             linkedTo: []
@@ -253,7 +253,7 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-fluff'
-            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid']
+            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid', 'engine-pulse']
           'some-other-node-instance-uuid':
             linkedTo: []
             type: 'nanocyte-node-fluff'
@@ -339,13 +339,13 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-fluff'
-            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid']
+            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid', 'engine-pulse']
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-stuff'
             linkedTo: []
           'some-different-node-instance-uuid':
             type: 'nanocyte-node-ruff'
-            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid']
+            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid', 'engine-pulse']
           'another-node-instance-uuid':
             linkedTo: []
             type: 'nanocyte-node-buff'
@@ -580,11 +580,11 @@ describe 'ConfigurationGenerator', ->
       it 'should set the flow links on the router', ->
         links =
           'some-trigger-uuid':
-            linkedTo: ['trigger-instance-uuid']
             type: 'engine-input'
+            linkedTo: ['trigger-instance-uuid']
           'trigger-instance-uuid':
-            linkedTo: ['throttle-push-instance-uuid']
             type: 'nanocyte-node-trigger'
+            linkedTo: ['throttle-push-instance-uuid', 'engine-pulse']
           'some-throttle-uuid':
             type: 'engine-input'
             linkedTo: ['throttle-pop-instance-uuid', 'throttle-emit-instance-uuid']
@@ -596,7 +596,7 @@ describe 'ConfigurationGenerator', ->
             linkedTo: ['throttle-emit-instance-uuid', 'engine-data']
           'throttle-emit-instance-uuid':
             type: 'nanocyte-node-throttle-emit'
-            linkedTo: ['debug-instance-uuid']
+            linkedTo: ['debug-instance-uuid', 'engine-pulse']
           'debug-instance-uuid':
             type: 'nanocyte-node-debug'
             linkedTo: ['engine-debug']

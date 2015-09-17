@@ -83,6 +83,7 @@ class ConfigurationGenerator
             linkedTo.push key
 
       linkedTo.push 'engine-output', 'engine-pulse' if config.linkedToOutput
+      linkedTo.push 'engine-pulse' if config.linkedToNext
       linkedTo.push 'engine-data' if config.linkedToData
       linkedTo.push 'engine-debug' if config.debug
 

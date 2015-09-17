@@ -91,19 +91,24 @@ class ConfigurationGenerator
         type: config.type
         linkedTo: linkedTo
 
-    result['engine-output'] =
-      type: 'engine-output'
-      linkedTo: []
-    result['engine-debug'] =
-      type: 'engine-debug'
-      linkedTo: []
-    result['engine-pulse'] =
-      type: 'engine-pulse'
-      linkedTo: []
-    result['engine-data'] =
-      type: 'engine-data'
-      linkedTo: []
+    @_addBlankVirtualNodesToRoutes result
 
     result
+
+  _addBlankVirtualNodesToRoutes: (config) =>
+    config['engine-output'] =
+      type: 'engine-output'
+      linkedTo: []
+    config['engine-debug'] =
+      type: 'engine-debug'
+      linkedTo: []
+    config['engine-pulse'] =
+      type: 'engine-pulse'
+      linkedTo: []
+    config['engine-data'] =
+      type: 'engine-data'
+      linkedTo: []
+    config
+
 
 module.exports = ConfigurationGenerator

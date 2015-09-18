@@ -43,14 +43,22 @@ class ConfigurationGenerator
       data: {}
 
     flowConfig = _.assign flowConfig, virtualNodes
-    flowConfig.router.config = @_buildLinks(flow.links, flowConfig)
+    flowNodeMap = @_generateInstances flow.links, flowConfig
+    links = @_buildLinks(flow.links, flowNodeMap)
+    flowConfig.router.config = links
+
+    flowConfig['engine-pulse'].config = @_buildNodeMap flowNodeMap
+    flowConfig['engine-debug'].config = @_buildNodeMap flowNodeMap
+
     _.defer =>
       callback null, flowConfig
 
-  _buildLinks: (links, flowNodes) =>
-    debug 'building links with', links
+  _buildNodeMap: (flowNodeMap) =>
+    _.mapValues flowNodeMap, (flowNode) =>
+      nodeUuid: flowNode.nodeUuid
+
+  _generateInstances: (links, flowNodes) =>
     flowNodeMap = {}
-    result = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}
       nanocyteConfig = config.nanocyte ? {}
@@ -63,30 +71,35 @@ class ConfigurationGenerator
         composedConfig.templateId = templateId
         composedConfig.debug = config.debug
 
-        if composedConfig.linkedToInput
-          result[nodeUuid] ?=
-            type: 'engine-input'
-            linkedTo: []
-          result[nodeUuid].linkedTo.push instanceId
-
-        if composedConfig.linkedFromStart
-          result['engine-start'] ?=
-            type: 'engine-start'
-            linkedTo: []
-          result['engine-start'].linkedTo.push instanceId
-
-        if composedConfig.linkedFromStop
-          result['engine-stop'] ?=
-            type: 'engine-stop'
-            linkedTo: []
-          result['engine-stop'].linkedTo.push instanceId
-
         flowNodeMap[instanceId] = composedConfig
+    return flowNodeMap
 
+  _buildLinks: (links, flowNodeMap) =>
+    debug 'building links with', links
+    result = {}
     _.each flowNodeMap, (config, instanceId) =>
       nodeLinks = _.filter links, from: config.nodeUuid
       templateLinks = config.linkedTo
       linkedTo = []
+
+      if config.linkedToInput
+        result[config.nodeUuid] ?=
+          type: 'engine-input'
+          linkedTo: []
+        result[config.nodeUuid].linkedTo.push instanceId
+
+      if config.linkedFromStart
+        result['engine-start'] ?=
+          type: 'engine-start'
+          linkedTo: []
+        result['engine-start'].linkedTo.push instanceId
+
+      if config.linkedFromStop
+        result['engine-stop'] ?=
+          type: 'engine-stop'
+          linkedTo: []
+        result['engine-stop'].linkedTo.push instanceId
+
       if config.linkedToNext
         linkUuids = _.pluck nodeLinks, 'to'
         _.each flowNodeMap, (data, key) =>
@@ -103,30 +116,25 @@ class ConfigurationGenerator
       linkedTo.push 'engine-data' if config.linkedToData
       linkedTo.push 'engine-debug' if config.debug
 
-
-
       result[instanceId] =
         type: config.type
         linkedTo: linkedTo
 
-    @_addBlankVirtualNodesToRoutes result
-    debug 'router config is', result
-    result
-
-  _addBlankVirtualNodesToRoutes: (config) =>
-    config['engine-output'] =
+    result['engine-output'] =
       type: 'engine-output'
       linkedTo: []
-    config['engine-debug'] =
+    result['engine-debug'] =
       type: 'engine-debug'
       linkedTo: []
-    config['engine-pulse'] =
+    result['engine-pulse'] =
       type: 'engine-pulse'
       linkedTo: []
-    config['engine-data'] =
+    result['engine-data'] =
       type: 'engine-data'
       linkedTo: []
-    config
 
+    debug 'router config is', result
+
+    return result
 
 module.exports = ConfigurationGenerator

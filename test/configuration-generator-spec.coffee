@@ -33,6 +33,24 @@ describe 'ConfigurationGenerator', ->
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
         expect(@flowConfig['engine-output'].config).to.deep.equal uuid: sampleFlow.flowId, token: 'some-token', server: 'some-server'
 
+      it 'should set engine-debug', ->
+        expect(@flowConfig['engine-debug'].config).to.deep.equal
+          "node-debug-instance":
+            nodeUuid: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
+          "node-interval-instance":
+            nodeUuid: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+          "node-trigger-instance":
+            nodeUuid: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+
+      it 'should set engine-pulse', ->
+        expect(@flowConfig['engine-pulse'].config).to.deep.equal
+          "node-debug-instance":
+            nodeUuid: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
+          "node-interval-instance":
+            nodeUuid: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+          "node-trigger-instance":
+            nodeUuid: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+            
       it 'should return a flow configuration with virtual nodes', ->
         expect(@flowConfig).to.contain.keys [
           'engine-input'
@@ -126,7 +144,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -180,7 +198,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v1.onCall(0).returns 'some-other-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'yet-some-other-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -247,7 +265,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
         @UUID.v1.onCall(2).returns 'another-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -333,7 +351,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
         @UUID.v1.onCall(2).returns 'some-different-node-instance-uuid'
         @UUID.v1.onCall(3).returns 'another-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -380,7 +398,7 @@ describe 'ConfigurationGenerator', ->
                     type: 'nanocyte-node-debug'
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -419,7 +437,7 @@ describe 'ConfigurationGenerator', ->
 
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -457,7 +475,7 @@ describe 'ConfigurationGenerator', ->
                     linkedToOutput: true
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -496,7 +514,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
 
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -575,7 +593,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v1.onCall(3).returns 'throttle-emit-instance-uuid'
         @UUID.v1.onCall(4).returns 'debug-instance-uuid'
 
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -655,7 +673,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v1.onCall(2).returns 'interval-stop-instance-uuid'
         @UUID.v1.onCall(3).returns 'debug-instance-uuid'
 
-        @result = @sut._buildLinks links, flowConfig
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
 
       it 'should set the flow links on the router', ->
         links =
@@ -694,3 +712,46 @@ describe 'ConfigurationGenerator', ->
             linkedTo: []
 
         expect(@result).to.deep.equal links
+
+  describe '-> _buildNodeMap', ->
+    beforeEach ->
+      @sut = new ConfigurationGenerator {}, {UUID: @UUID}
+
+    describe 'when one node is linked to another', ->
+      beforeEach ->
+        links = [
+          from: 'some-node-uuid'
+          to: 'some-other-node-uuid'
+        ]
+
+        flowConfig =
+          'some-node-uuid':
+            config:
+              id: 'some-node-uuid'
+              nanocyte:
+                type: 'nanocyte-node-fluff'
+                composedOf:
+                  'fluff-1':
+                    type: 'nanocyte-node-fluff'
+                    linkedToNext: true
+          'some-other-node-uuid':
+            config:
+              id: 'some-other-node-uuid'
+              nanocyte:
+                type: 'nanocyte-node-fluff'
+                composedOf:
+                  'fluff-1':
+                    type: 'nanocyte-node-fluff'
+                    linkedToPrev: true
+
+        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
+        @result = @sut._buildNodeMap @sut._generateInstances(links, flowConfig)
+
+      it 'should build the node map', ->
+        nodeMap =
+          'some-node-instance-uuid':
+            nodeUuid: 'some-node-uuid'
+          'some-other-node-instance-uuid':
+            nodeUuid: 'some-other-node-uuid'
+        expect(@result).to.deep.equal nodeMap

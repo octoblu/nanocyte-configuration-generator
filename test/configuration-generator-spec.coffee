@@ -36,21 +36,21 @@ describe 'ConfigurationGenerator', ->
       it 'should set engine-debug', ->
         expect(@flowConfig['engine-debug'].config).to.deep.equal
           "node-debug-instance":
-            nodeUuid: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
+            nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
           "node-interval-instance":
-            nodeUuid: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
           "node-trigger-instance":
-            nodeUuid: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+            nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
 
       it 'should set engine-pulse', ->
         expect(@flowConfig['engine-pulse'].config).to.deep.equal
           "node-debug-instance":
-            nodeUuid: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
+            nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
           "node-interval-instance":
-            nodeUuid: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
           "node-trigger-instance":
-            nodeUuid: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
-            
+            nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+
       it 'should return a flow configuration with virtual nodes', ->
         expect(@flowConfig).to.contain.keys [
           'engine-input'
@@ -497,6 +497,45 @@ describe 'ConfigurationGenerator', ->
 
         expect(@result).to.deep.equal links
 
+    describe 'when linkedToPulse', ->
+      beforeEach ->
+        links = []
+
+        flowConfig =
+          'some-node-uuid':
+            config:
+              id: 'some-node-uuid'
+              nanocyte:
+                type: 'nanocyte-node-bar'
+                composedOf:
+                  'bar-1':
+                    type: 'nanocyte-node-bar'
+                    linkedToPulse: true
+
+        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
+
+      it 'should set the flow links on the router', ->
+        links =
+          'some-node-instance-uuid':
+            type: 'nanocyte-node-bar'
+            linkedTo: ['engine-pulse']
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+          'engine-data':
+            type: 'engine-data'
+            linkedTo: []
+          'engine-debug':
+            type: 'engine-debug'
+            linkedTo: []
+          'engine-pulse':
+            type: 'engine-pulse'
+            linkedTo: []
+
+        expect(@result).to.deep.equal links
+
+
     describe 'when linkedToData', ->
       beforeEach ->
         links = []
@@ -751,7 +790,7 @@ describe 'ConfigurationGenerator', ->
       it 'should build the node map', ->
         nodeMap =
           'some-node-instance-uuid':
-            nodeUuid: 'some-node-uuid'
+            nodeId: 'some-node-uuid'
           'some-other-node-instance-uuid':
-            nodeUuid: 'some-other-node-uuid'
+            nodeId: 'some-other-node-uuid'
         expect(@result).to.deep.equal nodeMap

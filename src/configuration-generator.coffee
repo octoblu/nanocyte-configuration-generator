@@ -55,7 +55,7 @@ class ConfigurationGenerator
 
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>
-      nodeUuid: flowNode.nodeUuid
+      nodeId: flowNode.nodeUuid
 
   _generateInstances: (links, flowNodes) =>
     flowNodeMap = {}
@@ -111,8 +111,8 @@ class ConfigurationGenerator
           if data.nodeUuid == config.nodeUuid && data.templateId == templateLinkId
             linkedTo.push key
 
-      linkedTo.push 'engine-output', 'engine-pulse' if config.linkedToOutput
-      linkedTo.push 'engine-pulse' if config.linkedToNext
+      linkedTo.push 'engine-output' if config.linkedToOutput
+      linkedTo.push 'engine-pulse' if config.linkedToNext || config.linkedToPulse || config.linkedToOutput
       linkedTo.push 'engine-data' if config.linkedToData
       linkedTo.push 'engine-debug' if config.debug
 

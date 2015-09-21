@@ -24,10 +24,21 @@ describe 'ConfigurationGenerator', ->
         @sut.configure sampleFlow, 'some-token', (@error, @flowConfig) => done()
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
-        expect(@flowConfig).to.contain.keys [
+        expect(@flowConfig).to.contain.same.keys [
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
+          'node-trigger-instance'
+          'node-debug-instance'
+          'node-interval-instance'
+          'engine-data'
+          'engine-debug'
+          'engine-input'
+          'engine-output'
+          'engine-pulse'
+          'router'
+          'start'
+          'stop'
         ]
 
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
@@ -35,6 +46,15 @@ describe 'ConfigurationGenerator', ->
 
       it 'should set engine-debug', ->
         expect(@flowConfig['engine-debug'].config).to.deep.equal
+          "node-debug-instance":
+            nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
+          "node-interval-instance":
+            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+          "node-trigger-instance":
+            nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+
+      it 'should set engine-data', ->
+        expect(@flowConfig['engine-data'].config).to.deep.equal
           "node-debug-instance":
             nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
           "node-interval-instance":
@@ -51,26 +71,42 @@ describe 'ConfigurationGenerator', ->
           "node-trigger-instance":
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
 
-      it 'should return a flow configuration with virtual nodes', ->
-        expect(@flowConfig).to.contain.keys [
-          'engine-input'
-          'engine-output'
-          'router'
-          'start'
-          'stop'
-        ]
-
-      it 'should return a flow configuration with the router, io, nodes in the flow and the virtual nodes', ->
-        expect(@flowConfig).to.contain.keys [
-          '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
-          '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
-          '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
-          'engine-input'
-          'engine-output'
-          'router'
-          'start'
-          'stop'
-        ]
+      it 'should set node-trigger-instance', ->
+        expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
+          "id": "8a8da890-55d6-11e5-bd83-1349dc09f6d6",
+          "resourceType": "flow-node",
+          "payloadType": "date",
+          "once": false,
+          "name": "Trigger",
+          "class": "trigger",
+          "helpText": "Send a static message. Can also be triggered from other flows",
+          "category": "operation",
+          "uuid": "37f0a74a-2f17-11e4-9617-a6c5e4d22fb7",
+          "type": "operation:trigger",
+          "defaults": {
+            "payloadType": "date",
+            "once": false
+          },
+          "input": 0,
+          "output": 1,
+          "formTemplatePath": "/pages/node_forms/button_form.html",
+          "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+          "inputLocations": [],
+          "outputLocations": [],
+          "x": 609.9398803710938,
+          "y": 517.0806884765625,
+          "needsConfiguration": false,
+          "needsSetup": false,
+          "nanocyte": {
+            "composedOf": {
+              "Trigger": {
+                "type": "nanocyte-node-trigger",
+                "linkedToInput": true,
+                "linkedToNext": true
+              }
+            }
+          }
+        }
 
       it 'should set the flow links on the router', ->
         links =

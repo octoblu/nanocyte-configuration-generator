@@ -38,17 +38,23 @@ class ConfigurationGenerator
     virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
     flowNodes = _.indexBy flow.nodes, 'id'
     debug 'flowNodes', flowNodes
+
     flowConfig = _.mapValues flowNodes, (nodeConfig) =>
       config: nodeConfig
       data: {}
 
     flowConfig = _.assign flowConfig, virtualNodes
-    flowNodeMap = @_generateInstances flow.links, flowConfig
-    links = @_buildLinks(flow.links, flowNodeMap)
+    instanceMap = @_generateInstances flow.links, flowConfig
+
+    _.each instanceMap, (config, instanceId) =>
+      flowConfig[instanceId] = flowConfig[config.nodeUuid]
+
+    links = @_buildLinks(flow.links, instanceMap)
     flowConfig.router.config = links
 
-    flowConfig['engine-pulse'].config = @_buildNodeMap flowNodeMap
-    flowConfig['engine-debug'].config = @_buildNodeMap flowNodeMap
+    flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
+    flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
+    flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
 
     _.defer =>
       callback null, flowConfig

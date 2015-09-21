@@ -1,12 +1,19 @@
 language: node_js
 node_js:
-- '0.10'
+- '0.11'
+addons:
+  code_climate:
+    repo_token: db0ec1d21d46f280154cab7d35f97131c6a6769cbfb9bd0d19d8675611d16de7
+before_script:
+- npm install -g codeclimate-test-reporter
+after_script:
+- codeclimate-test-reporter < coverage/lcov.info
 deploy:
   provider: npm
-  email: sqrt@octoblu.com
+  email: serveradmin@octoblu.com
   api_key:
-    secure: QA5lLYqK6uoYRvrb42cIxSWNty3WmmYFo7I7s2L3N4YbLNXXzjrIk/JTJXCO8CW5/ECfYOzR7hcZhR0kQUmwDhQjHJWP4/eHCDOnE+zgBc6RJlq4ZJgQLqpz/QAmCxszOCIcR6poehgMlE3+U9leto9xQnHAy4l2wECsvVsXryAaywdXe57MWiFAoGjF89RncMG660lGbAgkpxFZFLLLjtOVIMaadmdh/MCkpUsLPUIrkzWcDRaKefvwtU6bPmXafBYGYHcRRs07yQMo0SJ03TEDXAm3AJxxxRWl5HlUftwB4z9NIIb58XP1jwhiktzrIynBaMkB7J6ghn9btdHZGlSY7jh/gtUDNSgLYFZdiQNXV8s6T6/mZE81FHscOG2QSx40dVNCBFai++QSsV43TKKOzwNi9PbmGtIbjebCuFECiajKk/MZd963+hxWgBdYM2LT5m76G58+goA+1OICgfrePNohr1eyHg7/zLEKZMAmMaUxo5w5TKDqR1ai75zqvIC+R3cOSzBvLAPsGt52x4M9mKqZFNUCGqSXzqBcUbx+4ipwOrKAxOFTeWrYqHvPxH9F8cqfqmObKvKIlGIVQON6ZtWg/bJqOIL0jrsIPrGNNtA2YBaiGswRKQO45jtpfsayy9gnCJWcd+xwRzX+a8OOVvMwszw9B3MafUa134w=
+    secure: FRtdiskdCDUK31wr9w9gkejhp6mo4Z8UMVJwP67XM3lwzJXmSLNcpSGI8KrsEpc56okRcm25RHHq0SkQzWWkK+T7lVt68XUn1YMKcrY+vUcoWTeQiCkfQvUtovT3tVdb7DHqIhk1XvggsjQJjlTX4ZI/zo+0yZtO+OT5NQEC5QcCNGZUkrYAYf6ZusIZNSlb870QQV+UPvTKs5NFCB52hH6k++m2wH8fWOxqUJ+/w2tGw2SawCsSUrtOmrf4KHExTFS4WnoIOwj7KjYX6HoT+8PZT3L8z7MndzJxxvVxncdlvflq7j9D0mnXlGiJh/vLZV8Ly2ItMK3QQ9QrXXqj7Bh5BabaQSpGjNxnZeQJdIbhXm9jRlSOb8mPXuhPFJkRAkxYtZ1w+iHyFDHOcQ4R1HTnulTok9DGgG+Lv3AUacUvsF/T77MvotDoSJ8QULEAyptl6fPHgU1uo2RIEgrAaGncY+6luI1oH1Unis7KU+Pioq5oklulSy7r5dmXcNlrvQRK3+BC7xchab/gz7LvqNiXUhcpa//ohhHhwNOLTRS1mJgXj85nwEZ4PaoUbM895I1vsQ4VTpPIAGpoiIvg043fIsQzDsxWCLhXSSWof9s7eMa+wtYN0m+VPw3WrPaHfEn8JieFs31yVXsXCzUtg8WJ97C8Eyye6wffet4XoIY=
   on:
     tags: true
-    repo: octoblu/nanocyte-configuration-generator
-    all_branches: true
+    branches: true
+    repo: octoblu/nanocyte-configuration-generation

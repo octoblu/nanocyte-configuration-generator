@@ -16,4 +16,3 @@ deploy:
   on:
     tags: true
     branches: true
-    repo: octoblu/nanocyte-configuration-generation

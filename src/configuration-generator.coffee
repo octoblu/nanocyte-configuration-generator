@@ -1,7 +1,8 @@
 debug = require('debug')('nanocyte-configuration-generator')
 _ = require 'lodash'
 
-REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+
 VIRTUAL_NODES =
   'engine-input':
     config: {}
@@ -29,35 +30,40 @@ VIRTUAL_NODES =
     data: {}
 
 class ConfigurationGenerator
-  constructor: (@meshbluJSON={}, dependencies={}) ->
-    {@UUID} = dependencies
+  constructor: (options, dependencies={}) ->
+    {@registryUrl, @meshbluJSON} = options
+    @registryUrl ?= DEFAULT_REGISTRY_URL
+    {@UUID, @request} = dependencies
     @UUID ?= require 'node-uuid'
+    @request ?= require 'request'
 
   configure: (flow, token, callback=->) =>
     debug 'configuring flow...', flow
-    virtualNodes = _.cloneDeep(VIRTUAL_NODES)
-    virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
-    flowNodes = _.indexBy flow.nodes, 'id'
-    debug 'flowNodes', flowNodes
 
-    flowConfig = _.mapValues flowNodes, (nodeConfig) =>
-      config: nodeConfig
-      data: {}
+    debug 'fetching registry'
+    @request.get @registryUrl, (error, response, nodeRegistry) =>
+      virtualNodes = _.cloneDeep(VIRTUAL_NODES)
+      virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
+      flowNodes = _.indexBy flow.nodes, 'id'
+      debug 'flowNodes', flowNodes
 
-    flowConfig = _.assign flowConfig, virtualNodes
-    instanceMap = @_generateInstances flow.links, flowConfig
+      flowConfig = _.mapValues flowNodes, (nodeConfig) =>
+        config: nodeConfig
+        data: {}
 
-    _.each instanceMap, (config, instanceId) =>
-      flowConfig[instanceId] = flowConfig[config.nodeUuid]
+      flowConfig = _.assign flowConfig, virtualNodes
+      instanceMap = @_generateInstances flow.links, flowConfig, nodeRegistry
 
-    links = @_buildLinks(flow.links, instanceMap)
-    flowConfig.router.config = links
+      _.each instanceMap, (config, instanceId) =>
+        flowConfig[instanceId] = flowConfig[config.nodeUuid]
 
-    flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
-    flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
-    flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
+      links = @_buildLinks(flow.links, instanceMap)
+      flowConfig.router.config = links
 
-    _.defer =>
+      flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
+      flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
+      flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
+
       callback null, flowConfig
 
   _buildNodeMap: (flowNodeMap) =>

@@ -36,16 +36,7 @@
       "x": 609.9398803710938,
       "y": 517.0806884765625,
       "needsConfiguration": false,
-      "needsSetup": false,
-      "nanocyte": {
-        "composedOf": {
-          "Trigger": {
-            "type": "nanocyte-node-trigger",
-            "linkedToInput": true,
-            "linkedToNext": true
-          }
-        }
-      }
+      "needsSetup": false
     },
     {
       "id": "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6",
@@ -75,15 +66,7 @@
       "x": 827.5084838867188,
       "y": 520.1118774414062,
       "needsConfiguration": false,
-      "needsSetup": false,
-      "nanocyte": {
-        "composedOf": {
-          "Debug": {
-            "type": "nanocyte-node-debug",
-            "linkedToPrev": true
-          }
-        }
-      }
+      "needsSetup": false
     },
     {
       "id": "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d",
@@ -111,16 +94,7 @@
       "x": 701.1630249023438,
       "y": 405.0007629394531,
       "needsConfiguration": false,
-      "needsSetup": false,
-      "nanocyte": {
-        "composedOf": {
-          "Interval-1": {
-            "type": "nanocyte-node-interval",
-            "linkedToNext": true,
-            "linkedToInput": true
-          }
-        }
-      }
+      "needsSetup": false
     }
   ],
   "links": [

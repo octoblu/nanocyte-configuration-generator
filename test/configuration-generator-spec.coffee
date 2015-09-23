@@ -215,26 +215,28 @@ describe 'ConfigurationGenerator', ->
         flowConfig =
           'some-other-node-uuid':
             config:
+              class: 'some-node'
               id: 'some-other-node-uuid'
-              nanocyte:
-                type: 'nanocyte-node-tuff'
-                composedOf:
-                  'tuff-2':
-                    type: 'nanocyte-node-tuff'
-                    linkedToNext: true
           'yet-some-other-node-uuid':
             config:
+              class: 'nanocyte-node-tuff'
               id: 'some-other-node-uuid'
-              nanocyte:
+
+        nodeRegistry =
+          'some-node':
+            composedOf:
+              'tuff-2':
                 type: 'nanocyte-node-tuff'
-                composedOf:
-                  'tuff-2':
-                    type: 'nanocyte-node-tuff'
-                    linkedToPrev: true
+                linkedToNext: true
+          'nanocyte-node-tuff':
+            composedOf:
+              'tuff-2':
+                type: 'nanocyte-node-tuff'
+                linkedToPrev: true
 
         @UUID.v1.onCall(0).returns 'some-other-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'yet-some-other-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
         links =
@@ -803,21 +805,23 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              nanocyte:
-                type: 'nanocyte-node-fluff'
-                composedOf:
-                  'fluff-1':
-                    type: 'nanocyte-node-fluff'
-                    linkedToNext: true
+              class: 'nanocyte-node-cruft'
           'some-other-node-uuid':
             config:
               id: 'some-other-node-uuid'
-              nanocyte:
+              class: 'nanocyte-node-fluff'
+
+        nodeRegistry =
+          'nanocyte-node-cruft':
+            composedOf:
+              'cruft-1':
+                type: 'nanocyte-node-cruft'
+                linkedToNext: true
+          'nanocyte-node-fluff':
+            composedOf:
+              'fluff-1':
                 type: 'nanocyte-node-fluff'
-                composedOf:
-                  'fluff-1':
-                    type: 'nanocyte-node-fluff'
-                    linkedToPrev: true
+                linkedToPrev: true
 
         @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'

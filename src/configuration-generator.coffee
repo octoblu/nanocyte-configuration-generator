@@ -1,6 +1,7 @@
 debug = require('debug')('nanocyte-configuration-generator')
 _ = require 'lodash'
 
+REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
 VIRTUAL_NODES =
   'engine-input':
     config: {}
@@ -63,12 +64,13 @@ class ConfigurationGenerator
     _.mapValues flowNodeMap, (flowNode) =>
       nodeId: flowNode.nodeUuid
 
-  _generateInstances: (links, flowNodes) =>
+  _generateInstances: (links, flowNodes, nodeRegistry) =>
     flowNodeMap = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}
       nanocyteConfig = config.nanocyte ? {}
-      composedOf = nanocyteConfig.composedOf ? {}
+      nodeFromRegistry = nodeRegistry[config.class] ? {}
+      composedOf = nodeFromRegistry.composedOf ? {}
 
       _.each composedOf, (template, templateId) =>
         instanceId = @UUID.v1()

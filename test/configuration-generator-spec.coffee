@@ -7,11 +7,11 @@ sampleFlow = require './data/sample-flow.json'
 describe 'ConfigurationGenerator', ->
   beforeEach ->
     @UUID = require 'node-uuid'
-    sinon.stub @UUID, 'v1'
+    sinon.stub @UUID, 'v4'
     @request = get: sinon.stub()
 
   afterEach ->
-    @UUID.v1.restore()
+    @UUID.v4.restore()
 
   describe '-> configure', ->
     beforeEach ->
@@ -39,13 +39,13 @@ describe 'ConfigurationGenerator', ->
                 "linkedToInput": true
 
         @request.get.yields null, {}, nodeRegistry
-        @UUID.v1.onCall(0).returns 'node-trigger-instance'
-        @UUID.v1.onCall(1).returns 'node-debug-instance'
-        @UUID.v1.onCall(2).returns 'node-interval-instance'
+        @UUID.v4.onCall(0).returns 'node-trigger-instance'
+        @UUID.v4.onCall(1).returns 'node-debug-instance'
+        @UUID.v4.onCall(2).returns 'node-interval-instance'
         @sut.configure sampleFlow, 'some-token', (@error, @flowConfig) => done()
 
       it 'should call request.get', ->
-        expect(@request.get).to.have.been.called
+        expect(@request.get).to.have.been.calledWith 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json', json: true
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
         expect(@flowConfig).to.contain.same.keys [
@@ -198,8 +198,8 @@ describe 'ConfigurationGenerator', ->
                 linkedToPrev: true
 
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -254,8 +254,8 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-tuff'
                 linkedToPrev: true
 
-        @UUID.v1.onCall(0).returns 'some-other-node-instance-uuid'
-        @UUID.v1.onCall(1).returns 'yet-some-other-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-other-node-instance-uuid'
+        @UUID.v4.onCall(1).returns 'yet-some-other-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -326,9 +326,9 @@ describe 'ConfigurationGenerator', ->
                 linkedToPrev: true
 
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
-        @UUID.v1.onCall(2).returns 'another-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
+        @UUID.v4.onCall(2).returns 'another-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -417,10 +417,10 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-buff'
                 linkedToPrev: true
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
-        @UUID.v1.onCall(2).returns 'some-different-node-instance-uuid'
-        @UUID.v1.onCall(3).returns 'another-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
+        @UUID.v4.onCall(2).returns 'some-different-node-instance-uuid'
+        @UUID.v4.onCall(3).returns 'another-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -470,7 +470,7 @@ describe 'ConfigurationGenerator', ->
                 linkedToOutput: true
                 type: 'nanocyte-node-debug'
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -511,7 +511,7 @@ describe 'ConfigurationGenerator', ->
               'bar-1':
                 type: 'nanocyte-node-bar'
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -552,7 +552,7 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-bar'
                 linkedToOutput: true
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -593,7 +593,7 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-bar'
                 linkedToPulse: true
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should set the flow links on the router', ->
@@ -635,7 +635,7 @@ describe 'ConfigurationGenerator', ->
                 linkedToData: true
 
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
 
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
@@ -715,11 +715,11 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-debug'
                 linkedToPrev: true
 
-        @UUID.v1.onCall(0).returns 'trigger-instance-uuid'
-        @UUID.v1.onCall(1).returns 'throttle-push-instance-uuid'
-        @UUID.v1.onCall(2).returns 'throttle-pop-instance-uuid'
-        @UUID.v1.onCall(3).returns 'throttle-emit-instance-uuid'
-        @UUID.v1.onCall(4).returns 'debug-instance-uuid'
+        @UUID.v4.onCall(0).returns 'trigger-instance-uuid'
+        @UUID.v4.onCall(1).returns 'throttle-push-instance-uuid'
+        @UUID.v4.onCall(2).returns 'throttle-pop-instance-uuid'
+        @UUID.v4.onCall(3).returns 'throttle-emit-instance-uuid'
+        @UUID.v4.onCall(4).returns 'debug-instance-uuid'
 
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
@@ -800,10 +800,10 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-debug'
                 linkedToPrev: true
 
-        @UUID.v1.onCall(0).returns 'interval-instance-uuid'
-        @UUID.v1.onCall(1).returns 'interval-start-instance-uuid'
-        @UUID.v1.onCall(2).returns 'interval-stop-instance-uuid'
-        @UUID.v1.onCall(3).returns 'debug-instance-uuid'
+        @UUID.v4.onCall(0).returns 'interval-instance-uuid'
+        @UUID.v4.onCall(1).returns 'interval-start-instance-uuid'
+        @UUID.v4.onCall(2).returns 'interval-stop-instance-uuid'
+        @UUID.v4.onCall(3).returns 'debug-instance-uuid'
 
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
 
@@ -878,8 +878,8 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-fluff'
                 linkedToPrev: true
 
-        @UUID.v1.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v1.onCall(1).returns 'some-other-node-instance-uuid'
+        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
         @result = @sut._buildNodeMap @sut._generateInstances(links, flowConfig, nodeRegistry)
 
       it 'should build the node map', ->

@@ -41,7 +41,9 @@ class ConfigurationGenerator
     debug 'configuring flow...', flow
 
     debug 'fetching registry'
-    @request.get @registryUrl, (error, response, nodeRegistry) =>
+    @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
+      debug 'fetched registry', nodeRegistry
+
       virtualNodes = _.cloneDeep(VIRTUAL_NODES)
       virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
       flowNodes = _.indexBy flow.nodes, 'id'
@@ -79,7 +81,7 @@ class ConfigurationGenerator
       composedOf = nodeFromRegistry.composedOf ? {}
 
       _.each composedOf, (template, templateId) =>
-        instanceId = @UUID.v1()
+        instanceId = @UUID.v4()
         composedConfig = _.cloneDeep template
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId

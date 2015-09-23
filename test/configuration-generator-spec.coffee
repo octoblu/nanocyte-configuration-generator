@@ -61,8 +61,8 @@ describe 'ConfigurationGenerator', ->
           'engine-output'
           'engine-pulse'
           'router'
-          'start'
-          'stop'
+          'engine-start'
+          'engine-stop'
         ]
 
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->

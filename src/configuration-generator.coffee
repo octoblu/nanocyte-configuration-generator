@@ -22,10 +22,10 @@ VIRTUAL_NODES =
   'router':
     config: {}
     data: {}
-  'start':
+  'engine-start':
     config: {}
     data: {}
-  'stop':
+  'engine-stop':
     config: {}
     data: {}
 

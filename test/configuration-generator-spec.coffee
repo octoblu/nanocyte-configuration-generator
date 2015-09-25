@@ -13,7 +13,7 @@ describe 'ConfigurationGenerator', ->
   afterEach ->
     @UUID.v4.restore()
 
-  describe '-> configure', ->
+  describe '->configure', ->
     beforeEach ->
       @sut = new ConfigurationGenerator {meshbluJSON: {server: 'some-server'}}, {UUID: @UUID, request: @request}
 
@@ -35,23 +35,34 @@ describe 'ConfigurationGenerator', ->
             "composedOf":
               "Interval-1":
                 "type": "nanocyte-node-interval"
-                "linkedToNext": true
                 "linkedToInput": true
+                "linkedToNext": true
+          "device":
+            "composedOf":
+              "pass-through":
+                "type": "nanocyte-component-pass-through"
+                "linkedToInput": true
+                "linkedToNext": true
 
         @request.get.yields null, {}, nodeRegistry
         @UUID.v4.onCall(0).returns 'node-trigger-instance'
         @UUID.v4.onCall(1).returns 'node-debug-instance'
         @UUID.v4.onCall(2).returns 'node-interval-instance'
+        @UUID.v4.onCall(3).returns 'node-device-instance'
         @sut.configure sampleFlow, 'some-token', (@error, @flowConfig) => done()
 
       it 'should call request.get', ->
-        expect(@request.get).to.have.been.calledWith 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json', json: true
+        expect(@request.get).to.have.been.calledWith(
+          'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+          json: true
+        )
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
         expect(@flowConfig).to.contain.same.keys [
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
+          'f607eed0-631b-11e5-9887-75e2edd7c9c8'
           'node-trigger-instance'
           'node-debug-instance'
           'node-interval-instance'
@@ -66,7 +77,10 @@ describe 'ConfigurationGenerator', ->
         ]
 
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
-        expect(@flowConfig['engine-output'].config).to.deep.equal uuid: sampleFlow.flowId, token: 'some-token', server: 'some-server'
+        expect(@flowConfig['engine-output'].config).to.deep.equal
+          uuid: sampleFlow.flowId
+          token: 'some-token'
+          server: 'some-server'
 
       it 'should set engine-debug', ->
         expect(@flowConfig['engine-debug'].config).to.deep.equal
@@ -76,6 +90,8 @@ describe 'ConfigurationGenerator', ->
             nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
           "node-trigger-instance":
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+          "node-device-instance":
+            nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
 
       it 'should set engine-data', ->
         expect(@flowConfig['engine-data'].config).to.deep.equal
@@ -85,6 +101,8 @@ describe 'ConfigurationGenerator', ->
             nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
           "node-trigger-instance":
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+          "node-device-instance":
+            nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
 
       it 'should set engine-pulse', ->
         expect(@flowConfig['engine-pulse'].config).to.deep.equal
@@ -94,6 +112,17 @@ describe 'ConfigurationGenerator', ->
             nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
           "node-trigger-instance":
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
+          "node-device-instance":
+            nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
+
+      it 'should set engine-input', ->
+        expect(@flowConfig['engine-input'].config).to.deep.equal
+          '37f0a74a-2f17-11e4-9617-a6c5e4d22fb7':
+            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
+          '37f0a966-2f17-11e4-9617-a6c5e4d22fb7':
+            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+          'c0e0955e-6ab4-4182-8d56-1c8c35a5106d':
+            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
 
       it 'should set node-trigger-instance', ->
         expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
@@ -131,6 +160,9 @@ describe 'ConfigurationGenerator', ->
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6':
             type: 'engine-input'
             linkedTo: ['node-trigger-instance']
+          'f607eed0-631b-11e5-9887-75e2edd7c9c8':
+            type: "engine-input"
+            linkedTo: ['node-device-instance']
           'node-trigger-instance':
             type: 'nanocyte-node-trigger'
             linkedTo: ['node-debug-instance', 'engine-pulse']
@@ -140,6 +172,9 @@ describe 'ConfigurationGenerator', ->
           'node-interval-instance':
             type: 'nanocyte-node-interval'
             linkedTo: ['node-debug-instance', 'engine-pulse']
+          'node-device-instance':
+            type: 'nanocyte-component-pass-through'
+            linkedTo: ['engine-pulse']
           'engine-output':
             type: 'engine-output'
             linkedTo: []

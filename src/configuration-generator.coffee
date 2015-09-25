@@ -65,12 +65,27 @@ class ConfigurationGenerator
       flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
       flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
       flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
+      flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
 
       callback null, flowConfig
 
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>
       nodeId: flowNode.nodeUuid
+
+  _buildMeshblutoNodeMap: (flowConfig, instanceMap) =>
+    instances = _.map instanceMap, (instance, instanceId) =>
+      instanceId:   instanceId
+      linkedToNext: instance.linkedToNext
+      nodeUuid:     instance.nodeUuid
+
+    inputInstances = _.where instances, linkedToNext: true
+
+    nodeMap = {}
+    _.each inputInstances, (instance) =>
+      nodeConfig = flowConfig[instance.nodeUuid]
+      nodeMap[nodeConfig.config.uuid] = {nodeId: instance.nodeUuid}
+    return nodeMap
 
   _generateInstances: (links, flowNodes, nodeRegistry) =>
     flowNodeMap = {}

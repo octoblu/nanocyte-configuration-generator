@@ -95,6 +95,49 @@
       "y": 405.0007629394531,
       "needsConfiguration": false,
       "needsSetup": false
+    },
+    {
+      "id": "f607eed0-631b-11e5-9887-75e2edd7c9c8",
+      "resourceType": "flow-node",
+      "configureWhitelist": [
+        "af354bd1-988f-4905-bba7-98b87f84eabe"
+      ],
+      "discoverWhitelist": [
+        "af354bd1-988f-4905-bba7-98b87f84eabe"
+      ],
+      "meshblu": {
+        "hash": "SENDpbFlAVqb/tdtHVbwj2pvlUWmz4fvEod0qOSXCcU=",
+        "tokens": {}
+      },
+      "name": "Thing 1",
+      "online": false,
+      "owner": "af354bd1-988f-4905-bba7-98b87f84eabe",
+      "receiveAsWhitelist": [
+        "c36f335a-d820-42bc-bedb-b08775931318"
+      ],
+      "receiveWhitelist": [
+        "af354bd1-988f-4905-bba7-98b87f84eabe",
+        "dd3d787a-7833-4581-9287-3ad2c5a1273a"
+      ],
+      "sendWhitelist": [
+        "af354bd1-988f-4905-bba7-98b87f84eabe",
+        "c36f335a-d820-42bc-bedb-b08775931318"
+      ],
+      "uuid": "c0e0955e-6ab4-4182-8d56-1c8c35a5106d",
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {},
+      "class": "",
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/device_form.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 402.96966552734375,
+      "y": -215.87570190429688,
+      "needsConfiguration": false,
+      "needsSetup": true
     }
   ],
   "links": [

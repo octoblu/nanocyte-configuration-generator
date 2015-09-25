@@ -177,11 +177,11 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'some-thing'
+              category: 'some-thing'
           'some-other-node-uuid':
             config:
               id: 'some-other-node-uuid'
-              class: 'some-other-thing'
+              category: 'some-other-thing'
 
         nodeRegistry =
           'some-thing':
@@ -235,11 +235,11 @@ describe 'ConfigurationGenerator', ->
         flowConfig =
           'some-other-node-uuid':
             config:
-              class: 'some-node'
+              category: 'some-node'
               id: 'some-other-node-uuid'
           'yet-some-other-node-uuid':
             config:
-              class: 'nanocyte-node-tuff'
+              category: 'nanocyte-node-tuff'
               id: 'some-other-node-uuid'
 
         nodeRegistry =
@@ -295,15 +295,15 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'some-thing'
+              category: 'some-thing'
           'some-other-node-uuid':
             config:
               id: 'some-other-node-uuid'
-              class: 'some-other-thing'
+              category: 'some-other-thing'
           'another-node-uuid':
             config:
               id: 'another-node-uuid'
-              class: 'another-thing'
+              category: 'another-thing'
 
         nodeRegistry =
           'some-thing':
@@ -377,19 +377,19 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'some-thing'
+              category: 'some-thing'
           'some-other-node-uuid':
             config:
               id: 'some-other-node-uuid'
-              class: 'some-other-thing'
+              category: 'some-other-thing'
           'some-different-node-uuid':
             config:
               id: 'some-different-node-uuid'
-              class: 'different-thing'
+              category: 'different-thing'
           'another-node-uuid':
             config:
               id: 'another-node-uuid'
-              class: 'another-thing'
+              category: 'another-thing'
 
         nodeRegistry =
           'some-thing':
@@ -460,7 +460,7 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'something'
+              category: 'something'
 
         nodeRegistry =
           'something':
@@ -502,7 +502,7 @@ describe 'ConfigurationGenerator', ->
             config:
               id: 'some-node-uuid'
               debug: true
-              class: 'something'
+              category: 'something'
 
         nodeRegistry =
           'something':
@@ -542,7 +542,7 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'something'
+              category: 'something'
 
         nodeRegistry =
           'something':
@@ -583,7 +583,7 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'something'
+              category: 'something'
 
         nodeRegistry =
           'something':
@@ -624,7 +624,7 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'something'
+              category: 'something'
 
         nodeRegistry =
           'something':
@@ -673,16 +673,16 @@ describe 'ConfigurationGenerator', ->
           'some-trigger-uuid':
             config:
               id: 'some-trigger-uuid'
-              class: 'trigger'
+              category: 'trigger'
           'some-throttle-uuid':
             config:
               id: 'some-throttle-uuid'
-              class: 'throttle'
+              category: 'throttle'
           'some-debug-uuid':
             config:
               id: 'some-debug-uuid'
               debug: true
-              class: 'debug'
+              category: 'debug'
 
         nodeRegistry =
           'trigger':
@@ -772,13 +772,13 @@ describe 'ConfigurationGenerator', ->
           'some-interval-uuid':
             config:
               id: 'some-interval-uuid'
-              class: 'interval'
+              category: 'interval'
 
           'some-debug-uuid':
             config:
               id: 'some-debug-uuid'
               debug: true
-              class: 'debug'
+              category: 'debug'
 
         nodeRegistry =
           'interval':
@@ -860,11 +860,11 @@ describe 'ConfigurationGenerator', ->
           'some-node-uuid':
             config:
               id: 'some-node-uuid'
-              class: 'nanocyte-node-cruft'
+              category: 'nanocyte-node-cruft'
           'some-other-node-uuid':
             config:
               id: 'some-other-node-uuid'
-              class: 'nanocyte-node-fluff'
+              category: 'nanocyte-node-fluff'
 
         nodeRegistry =
           'nanocyte-node-cruft':

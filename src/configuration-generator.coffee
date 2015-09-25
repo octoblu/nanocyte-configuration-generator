@@ -77,7 +77,11 @@ class ConfigurationGenerator
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}
       nanocyteConfig = config.nanocyte ? {}
-      nodeFromRegistry = nodeRegistry[config.class] ? {}
+
+      type = config.category
+      type = config.type.replace('operation:', '') if type == 'operation'
+      nodeFromRegistry = nodeRegistry[type] ? {}
+
       composedOf = nodeFromRegistry.composedOf ? {}
 
       _.each composedOf, (template, templateId) =>

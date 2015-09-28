@@ -74,17 +74,13 @@ class ConfigurationGenerator
       nodeId: flowNode.nodeUuid
 
   _buildMeshblutoNodeMap: (flowConfig, instanceMap) =>
-    instances = _.map instanceMap, (instance, instanceId) =>
-      instanceId:   instanceId
-      linkedToNext: instance.linkedToNext
-      nodeUuid:     instance.nodeUuid
-
-    inputInstances = _.where instances, linkedToNext: true
+    inputInstances = _.where instanceMap, linkedToInput: true
 
     nodeMap = {}
     _.each inputInstances, (instance) =>
       nodeConfig = flowConfig[instance.nodeUuid]
-      nodeMap[nodeConfig.config.uuid] = {nodeId: instance.nodeUuid}
+      nodeMap[nodeConfig.config.uuid] ?= []
+      nodeMap[nodeConfig.config.uuid].push {nodeId: instance.nodeUuid}
     return nodeMap
 
   _generateInstances: (links, flowNodes, nodeRegistry) =>

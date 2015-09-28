@@ -118,11 +118,11 @@ describe 'ConfigurationGenerator', ->
       it 'should set engine-input', ->
         expect(@flowConfig['engine-input'].config).to.deep.equal
           '37f0a74a-2f17-11e4-9617-a6c5e4d22fb7':
-            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
+            [{nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'}]
           '37f0a966-2f17-11e4-9617-a6c5e4d22fb7':
-            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
+            [{nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'}]
           'c0e0955e-6ab4-4182-8d56-1c8c35a5106d':
-            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
+            [{nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'}]
 
       it 'should set node-trigger-instance', ->
         expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
@@ -924,3 +924,31 @@ describe 'ConfigurationGenerator', ->
           'some-other-node-instance-uuid':
             nodeId: 'some-other-node-uuid'
         expect(@result).to.deep.equal nodeMap
+
+  describe '-> _buildMeshblutoNodeMap', ->
+    describe 'when two of the same input node', ->
+      beforeEach ->
+        flow =
+          'device-instance-1-uuid':
+            config:
+              uuid: 'device-uuid'
+          'device-instance-2-uuid':
+            config:
+              uuid: 'device-uuid'
+
+        instanceMap =
+          'device-instance-1':
+            nodeUuid: 'device-instance-1-uuid'
+            linkedToInput: true
+          'device-instance-2':
+            nodeUuid: 'device-instance-2-uuid'
+            linkedToInput: true
+
+        @sut = new ConfigurationGenerator {}
+        @result = @sut._buildMeshblutoNodeMap flow, instanceMap
+
+      it 'should send back a map linking both devices to the same uuid', ->
+        expect(@result['device-uuid']).to.deep.contain.same.members [
+          {nodeId: 'device-instance-1-uuid'}
+          {nodeId: 'device-instance-2-uuid'}
+        ]

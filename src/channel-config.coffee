@@ -5,7 +5,7 @@ CHANNEL_S3_BUCKET = 'octoblu-channels'
 CHANNEL_S3_KEY    = 'channels.json'
 
 class ChannelConfig
-  constructor: (options, dependencies) ->
+  constructor: (options, dependencies={}) ->
     {@s3client,@jsonfile} = dependencies
 
     @jsonfile ?= jsonfile

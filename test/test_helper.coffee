@@ -6,3 +6,5 @@ chai.use sinonChai
 
 global.expect = chai.expect
 global.sinon  = sinon
+
+process.env.NODE_ENV = 'development'

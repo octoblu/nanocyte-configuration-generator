@@ -9,13 +9,25 @@ describe 'ConfigurationGenerator', ->
     @UUID = require 'node-uuid'
     sinon.stub @UUID, 'v4'
     @request = get: sinon.stub()
+    @channelConfig =
+      fetch: sinon.stub()
+      get: sinon.stub()
 
   afterEach ->
     @UUID.v4.restore()
 
   describe '->configure', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator {meshbluJSON: {server: 'some-server'}}, {UUID: @UUID, request: @request}
+      options =
+        meshbluJSON:
+          server: 'some-server'
+
+      dependencies =
+        UUID: @UUID
+        request: @request
+        channelConfig: @channelConfig
+
+      @sut = new ConfigurationGenerator options, dependencies
 
     describe 'when called', ->
       beforeEach (done) ->
@@ -43,13 +55,40 @@ describe 'ConfigurationGenerator', ->
                 "type": "nanocyte-component-pass-through"
                 "linkedToInput": true
                 "linkedToNext": true
+          "channel":
+            "composedOf":
+              "pass-through":
+                "type": "nanocyte-component-channel"
+                "linkedToPrev": true
+                "linkedToNext": true
 
+        githubConfig = require './data/github-channel.json'
         @request.get.yields null, {}, nodeRegistry
+        @channelConfig.fetch.yields null
+        @channelConfig.get.withArgs('channel:github').returns githubConfig
         @UUID.v4.onCall(0).returns 'node-trigger-instance'
         @UUID.v4.onCall(1).returns 'node-debug-instance'
         @UUID.v4.onCall(2).returns 'node-interval-instance'
         @UUID.v4.onCall(3).returns 'node-device-instance'
-        @sut.configure sampleFlow, 'some-token', (@error, @flowConfig) => done()
+        @UUID.v4.onCall(4).returns 'node-channel-instance'
+
+        userData =
+          api:
+            [
+              "authtype": "oauth"
+              "token": "6387e3547c75a4e5804957319e37b7b0346097dc"
+              "channelid": "532a258a50411e5802cb8053"
+              "_id": "55fc50d1aed35f0f0009b9c3"
+              "type": "channel:github"
+              "uuid": "e56842b0-5e2e-11e5-8abf-b33a470ad64b"
+            ]
+
+        options =
+          userData: userData
+          flowData: sampleFlow
+          flowToken: 'some-token'
+
+        @sut.configure options, (@error, @flowConfig) => done()
 
       it 'should call request.get', ->
         expect(@request.get).to.have.been.calledWith(
@@ -58,14 +97,17 @@ describe 'ConfigurationGenerator', ->
         )
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
-        expect(@flowConfig).to.contain.same.keys [
+        expect(_.keys @flowConfig).to.have.deep.same.members [
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'f607eed0-631b-11e5-9887-75e2edd7c9c8'
+          '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-trigger-instance'
           'node-debug-instance'
           'node-interval-instance'
+          'node-device-instance'
+          'node-channel-instance'
           'engine-data'
           'engine-debug'
           'engine-input'
@@ -92,6 +134,8 @@ describe 'ConfigurationGenerator', ->
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
           "node-device-instance":
             nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
+          "node-channel-instance":
+            nodeId: "9d8e9920-663b-11e5-82a3-c3248b467ade"
 
       it 'should set engine-data', ->
         expect(@flowConfig['engine-data'].config).to.deep.equal
@@ -103,6 +147,8 @@ describe 'ConfigurationGenerator', ->
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
           "node-device-instance":
             nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
+          "node-channel-instance":
+            nodeId: "9d8e9920-663b-11e5-82a3-c3248b467ade"
 
       it 'should set engine-pulse', ->
         expect(@flowConfig['engine-pulse'].config).to.deep.equal
@@ -114,6 +160,8 @@ describe 'ConfigurationGenerator', ->
             nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
           "node-device-instance":
             nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
+          "node-channel-instance":
+            nodeId: "9d8e9920-663b-11e5-82a3-c3248b467ade"
 
       it 'should set engine-input', ->
         expect(@flowConfig['engine-input'].config).to.deep.equal
@@ -175,6 +223,9 @@ describe 'ConfigurationGenerator', ->
           'node-device-instance':
             type: 'nanocyte-component-pass-through'
             linkedTo: ['engine-pulse']
+          'node-channel-instance':
+            linkedTo: ['engine-pulse']
+            type: 'nanocyte-component-channel'
           'engine-output':
             type: 'engine-output'
             linkedTo: []
@@ -197,9 +248,97 @@ describe 'ConfigurationGenerator', ->
       it 'should configure the debug node with default data', ->
         expect(@flowConfig['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'].data).to.deep.equal {}
 
+      it 'should set node-channel-instance', ->
+        expect(@flowConfig['node-channel-instance'].config).to.deep.equal {
+          "id": "9d8e9920-663b-11e5-82a3-c3248b467ade",
+          "resourceType": "flow-node",
+          "channelid": "532a258a50411e5802cb8053",
+          "channelActivationId": "55fc50d1aed35f0f0009b9c3",
+          "uuid": "e56842b0-5e2e-11e5-8abf-b33a470ad64b",
+          "name": "Github",
+          "type": "channel:github",
+          "category": "channel",
+          "online": true,
+          "useStaticMessage": true,
+          "nodeType": {
+            "_id": "53c9b839f400e177dca325c8",
+            "category": "channel",
+            "categories": [
+              "Social"
+            ],
+            "description": "",
+            "documentation": "https://developer.github.com/v3/",
+            "helpText": "GitHub is a web-based Git repository hosting service, that is the best place to share code with friends, co-workers, classmates, and complete strangers. Also offers distributed revision control and source code management functionalities to fork projects, send pull requests, and monitor development.",
+            "enabled": true,
+            "name": "Github",
+            "skynet": {
+              "type": "channel",
+              "subtype": "Github"
+            },
+            "channelid": "532a258a50411e5802cb8053",
+            "type": "channel:github"
+          },
+          "class": "channel-github",
+          "defaults": {
+            "channelid": "532a258a50411e5802cb8053",
+            "channelActivationId": "55fc50d1aed35f0f0009b9c3",
+            "uuid": "e56842b0-5e2e-11e5-8abf-b33a470ad64b",
+            "name": "Github",
+            "type": "channel:github",
+            "category": "channel",
+            "online": true,
+            "useStaticMessage": true,
+            "nodeType": {
+              "_id": "53c9b839f400e177dca325c8",
+              "category": "channel",
+              "categories": [
+                "Social"
+              ],
+              "description": "",
+              "documentation": "https://developer.github.com/v3/",
+              "helpText": "GitHub is a web-based Git repository hosting service, that is the best place to share code with friends, co-workers, classmates, and complete strangers. Also offers distributed revision control and source code management functionalities to fork projects, send pull requests, and monitor development.",
+              "enabled": true,
+              "name": "Github",
+              "skynet": {
+                "type": "channel",
+                "subtype": "Github"
+              },
+              "channelid": "532a258a50411e5802cb8053",
+              "type": "channel:github"
+            }
+          },
+          "input": 1,
+          "output": 1,
+          "helpText": "GitHub is a web-based Git repository hosting service, that is the best place to share code with friends, co-workers, classmates, and complete strangers. Also offers distributed revision control and source code management functionalities to fork projects, send pull requests, and monitor development.",
+          "formTemplatePath": "/pages/node_forms/channel_form.html",
+          "logo": "https://ds78apnml6was.cloudfront.net/channel/github.svg",
+          "inputLocations": [],
+          "outputLocations": [],
+          "x": 239.47897338867188,
+          "y": 228.071044921875,
+          "headerParams": {},
+          "urlParams": {},
+          "queryParams": {},
+          "bodyParams": {},
+          "url": "https://:hostname/setup/api/settings/authorized-keys",
+          "method": "POST",
+          "needsConfiguration": false,
+          "needsSetup": false,
+          "oauth": {
+            "clientID": "development-client-id",
+            "clientSecret": "development-client-secret",
+            "callbackURL": "http://localhost:8080/api/oauth/github/callback",
+            "tokenMethod": "access_token_query",
+            "key": "development-client-id",
+            "secret": "development-client-secret",
+            "access_token": "6387e3547c75a4e5804957319e37b7b0346097dc"
+          },
+          "bodyFormat": "json"
+        }
+
   describe '-> _buildLinks', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator {}, {UUID: @UUID, request: @request}
+      @sut = new ConfigurationGenerator {}, {UUID: @UUID, request: @request, channelConfig: {}}
 
     describe 'when one node is linked to another', ->
       beforeEach ->
@@ -235,7 +374,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -291,7 +430,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v4.onCall(0).returns 'some-other-node-instance-uuid'
         @UUID.v4.onCall(1).returns 'yet-some-other-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -364,7 +503,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
         @UUID.v4.onCall(2).returns 'another-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -456,7 +595,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
         @UUID.v4.onCall(2).returns 'some-different-node-instance-uuid'
         @UUID.v4.onCall(3).returns 'another-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -506,7 +645,7 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-debug'
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -547,7 +686,7 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-bar'
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -588,7 +727,7 @@ describe 'ConfigurationGenerator', ->
                 linkedToOutput: true
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -629,7 +768,7 @@ describe 'ConfigurationGenerator', ->
                 linkedToPulse: true
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -672,7 +811,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
 
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -756,7 +895,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v4.onCall(3).returns 'throttle-emit-instance-uuid'
         @UUID.v4.onCall(4).returns 'debug-instance-uuid'
 
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -840,7 +979,7 @@ describe 'ConfigurationGenerator', ->
         @UUID.v4.onCall(2).returns 'interval-stop-instance-uuid'
         @UUID.v4.onCall(3).returns 'debug-instance-uuid'
 
-        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
         links =
@@ -882,7 +1021,7 @@ describe 'ConfigurationGenerator', ->
 
   describe '-> _buildNodeMap', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator {}, {UUID: @UUID}
+      @sut = new ConfigurationGenerator {}, {UUID: @UUID, channelConfig: {}}
 
     describe 'when one node is linked to another', ->
       beforeEach ->
@@ -915,7 +1054,7 @@ describe 'ConfigurationGenerator', ->
 
         @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
         @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
-        @result = @sut._buildNodeMap @sut._generateInstances(links, flowConfig, nodeRegistry)
+        @result = @sut._buildNodeMap @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should build the node map', ->
         nodeMap =
@@ -944,7 +1083,7 @@ describe 'ConfigurationGenerator', ->
             nodeUuid: 'device-instance-2-uuid'
             linkedToInput: true
 
-        @sut = new ConfigurationGenerator {}
+        @sut = new ConfigurationGenerator {}, {channelConfig: {}}
         @result = @sut._buildMeshblutoNodeMap flow, instanceMap
 
       it 'should send back a map linking both devices to the same uuid', ->

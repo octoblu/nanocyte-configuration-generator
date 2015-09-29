@@ -138,6 +138,82 @@
       "y": -215.87570190429688,
       "needsConfiguration": false,
       "needsSetup": true
+    },
+    {
+      "id": "9d8e9920-663b-11e5-82a3-c3248b467ade",
+      "resourceType": "flow-node",
+      "channelid": "532a258a50411e5802cb8053",
+      "channelActivationId": "55fc50d1aed35f0f0009b9c3",
+      "uuid": "e56842b0-5e2e-11e5-8abf-b33a470ad64b",
+      "name": "Github",
+      "type": "channel:github",
+      "category": "channel",
+      "online": true,
+      "useStaticMessage": true,
+      "nodeType": {
+        "_id": "53c9b839f400e177dca325c8",
+        "category": "channel",
+        "categories": [
+          "Social"
+        ],
+        "description": "",
+        "documentation": "https://developer.github.com/v3/",
+        "helpText": "GitHub is a web-based Git repository hosting service, that is the best place to share code with friends, co-workers, classmates, and complete strangers. Also offers distributed revision control and source code management functionalities to fork projects, send pull requests, and monitor development.",
+        "enabled": true,
+        "name": "Github",
+        "skynet": {
+          "type": "channel",
+          "subtype": "Github"
+        },
+        "channelid": "532a258a50411e5802cb8053",
+        "type": "channel:github"
+      },
+      "class": "channel-github",
+      "defaults": {
+        "channelid": "532a258a50411e5802cb8053",
+        "channelActivationId": "55fc50d1aed35f0f0009b9c3",
+        "uuid": "e56842b0-5e2e-11e5-8abf-b33a470ad64b",
+        "name": "Github",
+        "type": "channel:github",
+        "category": "channel",
+        "online": true,
+        "useStaticMessage": true,
+        "nodeType": {
+          "_id": "53c9b839f400e177dca325c8",
+          "category": "channel",
+          "categories": [
+            "Social"
+          ],
+          "description": "",
+          "documentation": "https://developer.github.com/v3/",
+          "helpText": "GitHub is a web-based Git repository hosting service, that is the best place to share code with friends, co-workers, classmates, and complete strangers. Also offers distributed revision control and source code management functionalities to fork projects, send pull requests, and monitor development.",
+          "enabled": true,
+          "name": "Github",
+          "skynet": {
+            "type": "channel",
+            "subtype": "Github"
+          },
+          "channelid": "532a258a50411e5802cb8053",
+          "type": "channel:github"
+        }
+      },
+      "input": 1,
+      "output": 1,
+      "helpText": "GitHub is a web-based Git repository hosting service, that is the best place to share code with friends, co-workers, classmates, and complete strangers. Also offers distributed revision control and source code management functionalities to fork projects, send pull requests, and monitor development.",
+      "formTemplatePath": "/pages/node_forms/channel_form.html",
+      "logo": "https://ds78apnml6was.cloudfront.net/channel/github.svg",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 239.47897338867188,
+      "y": 228.071044921875,
+      "headerParams": {},
+      "urlParams": {},
+      "queryParams": {},
+      "bodyParams": {},
+      "url": "https://:hostname/setup/api/settings/authorized-keys",
+      "method": "POST",
+      "needsConfiguration": false,
+      "needsSetup": false
     }
   ],
   "links": [

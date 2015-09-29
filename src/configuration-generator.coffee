@@ -1,5 +1,6 @@
-debug = require('debug')('nanocyte-configuration-generator')
 _ = require 'lodash'
+debug = require('debug')('nanocyte-configuration-generator')
+ChannelConfig = require './channel-config'
 
 DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
 
@@ -33,39 +34,45 @@ class ConfigurationGenerator
   constructor: (options, dependencies={}) ->
     {@registryUrl, @meshbluJSON} = options
     @registryUrl ?= DEFAULT_REGISTRY_URL
-    {@UUID, @request} = dependencies
-    @UUID ?= require 'node-uuid'
-    @request ?= require 'request'
 
-  configure: (flow, token, callback=->) =>
-    debug 'configuring flow...', flow
+    {@UUID, @request, @channelConfig} = dependencies
+    @UUID    ?= require 'node-uuid'
+    @request ?= require 'request'
+    @channelConfig ?= new ChannelConfig
+
+  configure: (options, callback=->) =>
+    {flowData, flowToken, userData} = options
+
+    debug 'configuring flow...', flowData
 
     debug 'fetching registry'
-    @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
+    @_getNodeRegistry (error, nodeRegistry) =>
       debug 'fetched registry', nodeRegistry
 
-      virtualNodes = _.cloneDeep(VIRTUAL_NODES)
-      virtualNodes['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flow.flowId, token: token
-      flowNodes = _.indexBy flow.nodes, 'id'
-      debug 'flowNodes', flowNodes
-
+      flowNodes = _.indexBy flowData.nodes, 'id'
       flowConfig = _.mapValues flowNodes, (nodeConfig) =>
         config: nodeConfig
         data: {}
 
-      flowConfig = _.assign flowConfig, virtualNodes
-      instanceMap = @_generateInstances flow.links, flowConfig, nodeRegistry
+      flowConfig = _.assign flowConfig, _.cloneDeep(VIRTUAL_NODES)
+      instanceMap = @_generateInstances flowData.links, flowConfig, nodeRegistry, userData
 
-      _.each instanceMap, (config, instanceId) =>
-        flowConfig[instanceId] = flowConfig[config.nodeUuid]
+      _.each instanceMap, (instanceConfig, instanceId) =>
+        {config,data} = flowConfig[instanceConfig.nodeUuid]
 
-      links = @_buildLinks(flow.links, instanceMap)
+        oauthConfig = @_ohThatOauth userData, _.cloneDeep(config)
+        config = _.defaultsDeep {}, config, oauthConfig
+
+        flowConfig[instanceId] = {config: config, data: data}
+
+      links = @_buildLinks(flowData.links, instanceMap)
       flowConfig.router.config = links
 
       flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
       flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
       flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
       flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
+      flowConfig['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
 
       callback null, flowConfig
 
@@ -83,7 +90,7 @@ class ConfigurationGenerator
       nodeMap[nodeConfig.config.uuid].push {nodeId: instance.nodeUuid}
     return nodeMap
 
-  _generateInstances: (links, flowNodes, nodeRegistry) =>
+  _generateInstances: (links, flowNodes, nodeRegistry, userData) =>
     flowNodeMap = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}
@@ -103,7 +110,12 @@ class ConfigurationGenerator
         composedConfig.debug = config.debug
 
         flowNodeMap[instanceId] = composedConfig
+
     return flowNodeMap
+
+  _getNodeRegistry: (callback) =>
+    @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
+      callback error, nodeRegistry
 
   _buildLinks: (links, flowNodeMap) =>
     debug 'building links with', links
@@ -167,5 +179,54 @@ class ConfigurationGenerator
     debug 'router config is', result
 
     return result
+
+  _ohThatOauth: (userData, template) =>
+    userApiMatch = _.findWhere(userData.api, type: template.type)
+    return {} unless userApiMatch?
+
+    channelApiMatch = @channelConfig.get template.type
+    return {} unless channelApiMatch?
+
+    channelConfig = _.pick channelApiMatch,
+      'bodyFormat'
+      'followAllRedirects'
+      'skipVerifySSL'
+      'hiddenParams'
+      'auth_header_key'
+      'bodyParams'
+
+    config = _.defaults {}, template, channelConfig
+
+    # if userApiMatch.token_crypt
+    #   userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
+    #   userApiMatch.token  = textCrypt.decrypt userApiMatch.token_crypt
+
+    config.apikey = userApiMatch.apikey
+
+    userToken = userApiMatch.token ? userApiMatch.key
+
+    userOAuth =
+      access_token: userToken
+      access_token_secret: userApiMatch.secret
+      refreshToken: userApiMatch.refreshToken
+      expiresOn: userApiMatch.expiresOn
+      defaultParams: userApiMatch.defaultParams
+
+    channelOauth =  channelApiMatch.oauth?[process.env.NODE_ENV]
+    channelOauth ?= channelApiMatch.oauth
+    channelOauth ?= {tokenMethod: channelApiMatch.auth_strategy}
+
+    config.oauth = _.defaults {}, userOAuth, template.oauth, channelOauth
+
+    if channelApiMatch.overrides
+      config.headerParams = _.extend {}, template.headerParams, channelApiMatch.overrides.headerParams
+
+    config.oauth.key ?= config.oauth.clientID
+    config.oauth.key ?= config.oauth.consumerKey
+
+    config.oauth.secret ?= config.oauth.clientSecret
+    config.oauth.secret ?= config.oauth.consumerSecret
+
+    return JSON.parse JSON.stringify config # removes things that are undefined
 
 module.exports = ConfigurationGenerator

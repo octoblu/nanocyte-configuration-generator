@@ -90,6 +90,9 @@ describe 'ConfigurationGenerator', ->
 
         @sut.configure options, (@error, @flowConfig) => done()
 
+      it 'should call channelConfig.fetch', ->
+        expect(@channelConfig.fetch).to.have.been.called
+        
       it 'should call request.get', ->
         expect(@request.get).to.have.been.calledWith(
           'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'

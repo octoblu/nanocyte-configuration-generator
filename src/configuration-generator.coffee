@@ -48,35 +48,39 @@ class ConfigurationGenerator
     debug 'configuring flow...', flowData
 
     debug 'fetching registry'
-    @_getNodeRegistry (error, nodeRegistry) =>
-      debug 'fetched registry', nodeRegistry
+    @channelConfig.fetch (error) =>
+      return callback error if error?
 
-      flowNodes = _.indexBy flowData.nodes, 'id'
-      flowConfig = _.mapValues flowNodes, (nodeConfig) =>
-        config: nodeConfig
-        data: {}
+      @_getNodeRegistry (error, nodeRegistry) =>
+        return callback error if error?
+        debug 'fetched registry', nodeRegistry
 
-      flowConfig = _.assign flowConfig, _.cloneDeep(VIRTUAL_NODES)
-      instanceMap = @_generateInstances flowData.links, flowConfig, nodeRegistry, userData
+        flowNodes = _.indexBy flowData.nodes, 'id'
+        flowConfig = _.mapValues flowNodes, (nodeConfig) =>
+          config: nodeConfig
+          data: {}
 
-      _.each instanceMap, (instanceConfig, instanceId) =>
-        {config,data} = flowConfig[instanceConfig.nodeUuid]
+        flowConfig = _.assign flowConfig, _.cloneDeep(VIRTUAL_NODES)
+        instanceMap = @_generateInstances flowData.links, flowConfig, nodeRegistry, userData
 
-        oauthConfig = @_ohThatOauth userData, _.cloneDeep(config)
-        config = _.defaultsDeep {}, config, oauthConfig
+        _.each instanceMap, (instanceConfig, instanceId) =>
+          {config,data} = flowConfig[instanceConfig.nodeUuid]
 
-        flowConfig[instanceId] = {config: config, data: data}
+          oauthConfig = @_ohThatOauth userData, _.cloneDeep(config)
+          config = _.defaultsDeep {}, config, oauthConfig
 
-      links = @_buildLinks(flowData.links, instanceMap)
-      flowConfig.router.config = links
+          flowConfig[instanceId] = {config: config, data: data}
 
-      flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
-      flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
-      flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
-      flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
-      flowConfig['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
+        links = @_buildLinks(flowData.links, instanceMap)
+        flowConfig.router.config = links
 
-      callback null, flowConfig
+        flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
+        flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
+        flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
+        flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
+        flowConfig['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
+
+        callback null, flowConfig
 
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>

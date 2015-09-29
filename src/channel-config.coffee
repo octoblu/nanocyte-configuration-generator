@@ -11,8 +11,8 @@ class ChannelConfig
     @jsonfile ?= jsonfile
     @s3client ?= s3.createClient
       s3Options:
-        accessKeyId:     process.env.ACCESS_KEY_ID
-        secretAccessKey: process.env.SECRET_ACCESS_KEY
+        accessKeyId:     options.accessKeyId
+        secretAccessKey: options.secretAccessKey
 
   fetch: (callback) =>
     downloader = @s3client.downloadFile

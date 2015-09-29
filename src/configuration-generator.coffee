@@ -39,6 +39,8 @@ class ConfigurationGenerator
     @UUID    ?= require 'node-uuid'
     @request ?= require 'request'
     @channelConfig ?= new ChannelConfig
+      accessKeyId:     options.accessKeyId
+      secretAccessKey: options.secretAccessKey
 
   configure: (options, callback=->) =>
     {flowData, flowToken, userData} = options

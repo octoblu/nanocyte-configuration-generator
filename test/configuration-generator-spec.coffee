@@ -61,6 +61,9 @@ describe 'ConfigurationGenerator', ->
                 "type": "nanocyte-component-channel"
                 "linkedToPrev": true
                 "linkedToNext": true
+              "stopper":
+                "type": "node-component-unregister"
+                "linkedFromStop": true
           "flow-metrics":
             "composedOf":
               "pass-through":
@@ -78,7 +81,8 @@ describe 'ConfigurationGenerator', ->
         @UUID.v4.onCall(3).returns 'node-interval-instance'
         @UUID.v4.onCall(4).returns 'node-device-instance'
         @UUID.v4.onCall(5).returns 'node-channel-instance'
-        @UUID.v4.onCall(6).returns 'node-flow-metric-instance'
+        @UUID.v4.onCall(6).returns 'node-component-unregister-instance'
+        @UUID.v4.onCall(7).returns 'node-flow-metric-instance'
 
         userData =
           api:
@@ -97,7 +101,7 @@ describe 'ConfigurationGenerator', ->
           flowToken: 'some-token'
           deploymentUuid: 'the-deployment-uuid'
 
-        @sut.configure options, (@error, @flowConfig) => done()
+        @sut.configure options, (@error, @flowConfig, @flowStopConfig) => done()
 
       it 'should call channelConfig.fetch', ->
         expect(@channelConfig.fetch).to.have.been.called
@@ -121,6 +125,7 @@ describe 'ConfigurationGenerator', ->
           'node-interval-instance'
           'node-device-instance'
           'node-channel-instance'
+          'node-component-unregister-instance'
           'node-flow-metric-instance'
           'engine-data'
           'engine-debug'
@@ -132,6 +137,31 @@ describe 'ConfigurationGenerator', ->
           'engine-stop'
         ]
 
+      it 'should return a flow configuration with keys for all the nodes in the flow', ->
+        expect(_.keys @flowStopConfig).to.have.deep.same.members [
+          '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
+          '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
+          'f607eed0-631b-11e5-9887-75e2edd7c9c8'
+          '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          '000000-fake-metric-uuid-9999'
+          'node-component-unregister-instance'
+          'node-trigger-instance'
+          'node-debug-instance'
+          'node-interval-instance'
+          'node-device-instance'
+          'node-channel-instance'
+          'node-flow-metric-instance'
+          'engine-data'
+          'engine-debug'
+          'engine-output'
+          'engine-pulse'
+          'router'
+          'engine-start'
+          'engine-stop'
+        ]
+
+
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
         expect(@flowConfig['engine-output'].config).to.deep.equal
           uuid: sampleFlow.flowId
@@ -142,6 +172,8 @@ describe 'ConfigurationGenerator', ->
         expect(@flowConfig['engine-debug'].config).to.deep.equal
           'node-debug-instance':
             nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          'node-component-unregister-instance':
+            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-interval-instance':
             nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'node-trigger-instance':
@@ -157,6 +189,8 @@ describe 'ConfigurationGenerator', ->
         expect(@flowConfig['engine-data'].config).to.deep.equal
           'node-debug-instance':
             nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          'node-component-unregister-instance':
+            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-interval-instance':
             nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'node-trigger-instance':
@@ -172,6 +206,8 @@ describe 'ConfigurationGenerator', ->
         expect(@flowConfig['engine-pulse'].config).to.deep.equal
           'node-debug-instance':
             nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          'node-component-unregister-instance':
+            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-interval-instance':
             nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'node-trigger-instance':
@@ -228,6 +264,17 @@ describe 'ConfigurationGenerator', ->
           "needsSetup": false
         }
 
+      it 'should only set engine-stop on the stopConfig router', ->
+        links =
+          'engine-stop':
+            linkedTo: ['node-component-unregister-instance']
+            type: 'engine-stop'
+          'engine-output':
+            type: 'engine-output'
+            linkedTo: []
+
+        expect(@flowStopConfig.router.config).to.deep.equal links
+
       it 'should set the flow links on the router', ->
         links =
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d':
@@ -260,6 +307,9 @@ describe 'ConfigurationGenerator', ->
           'engine-start':
             linkedTo: ['node-flow-metric-instance']
             type: 'engine-start'
+          'engine-stop':
+            linkedTo: ['node-component-unregister-instance']
+            type: 'engine-stop'
           'engine-output':
             type: 'engine-output'
             linkedTo: []
@@ -272,6 +322,9 @@ describe 'ConfigurationGenerator', ->
           'engine-pulse':
             type: 'engine-pulse'
             linkedTo: []
+          'node-component-unregister-instance':
+            linkedTo: []
+            type: 'node-component-unregister'
 
         expect(@flowConfig.router.config).to.deep.equal links
 

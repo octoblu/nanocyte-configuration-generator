@@ -71,16 +71,16 @@ describe 'ChannelConfig', ->
 
     describe 'when fetch has been called', ->
       beforeEach ->
-        @sut._channels = [{stellar: 'body', type: 'red-dwarf'}]
+        @sut._channels = [{stellar: 'body', type: 'channel:red-dwarf'}]
         @result = @sut.get 'channel:red-dwarf'
 
       it 'should return a channel', ->
-        expect(@result).to.deep.equal stellar: 'body', type: 'red-dwarf'
+        expect(@result).to.deep.equal stellar: 'body', type: 'channel:red-dwarf'
 
     describe 'when fetch has really been called', ->
       beforeEach ->
-        @sut._channels = [{'ice-cream': 'cone', type: 'something-cold'}]
+        @sut._channels = [{'ice-cream': 'cone', type: 'channel:something-cold'}]
         @result = @sut.get 'channel:something-cold'
 
       it 'should return a channel', ->
-        expect(@result).to.deep.equal 'ice-cream': 'cone', type: 'something-cold'
+        expect(@result).to.deep.equal 'ice-cream': 'cone', type: 'channel:something-cold'

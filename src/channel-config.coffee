@@ -30,7 +30,6 @@ class ChannelConfig
 
   get: (type) =>
     throw new Error 'Cannot call get before fetch' unless @_channels?
-    [irrelevent,channelType] = type.split ':'
-    _.findWhere @_channels, type: channelType
+    _.findWhere @_channels, type: type
 
 module.exports = ChannelConfig

@@ -61,16 +61,24 @@ describe 'ConfigurationGenerator', ->
                 "type": "nanocyte-component-channel"
                 "linkedToPrev": true
                 "linkedToNext": true
+          "flow-metrics":
+            "composedOf":
+              "pass-through":
+                "type": "nanocyte-component-flow-metrics-start"
+                "linkedFromStart": true
+                "linkedToOutput": true
 
         githubConfig = require './data/github-channel.json'
         @request.get.yields null, {}, nodeRegistry
         @channelConfig.fetch.yields null
         @channelConfig.get.withArgs('channel:github').returns githubConfig
-        @UUID.v4.onCall(0).returns 'node-trigger-instance'
-        @UUID.v4.onCall(1).returns 'node-debug-instance'
-        @UUID.v4.onCall(2).returns 'node-interval-instance'
-        @UUID.v4.onCall(3).returns 'node-device-instance'
-        @UUID.v4.onCall(4).returns 'node-channel-instance'
+        @UUID.v4.onCall(0).returns '000000-fake-metric-uuid-9999'
+        @UUID.v4.onCall(1).returns 'node-trigger-instance'
+        @UUID.v4.onCall(2).returns 'node-debug-instance'
+        @UUID.v4.onCall(3).returns 'node-interval-instance'
+        @UUID.v4.onCall(4).returns 'node-device-instance'
+        @UUID.v4.onCall(5).returns 'node-channel-instance'
+        @UUID.v4.onCall(6).returns 'node-flow-metric-instance'
 
         userData =
           api:
@@ -87,12 +95,13 @@ describe 'ConfigurationGenerator', ->
           userData: userData
           flowData: sampleFlow
           flowToken: 'some-token'
+          deploymentUuid: 'the-deployment-uuid'
 
         @sut.configure options, (@error, @flowConfig) => done()
 
       it 'should call channelConfig.fetch', ->
         expect(@channelConfig.fetch).to.have.been.called
-        
+
       it 'should call request.get', ->
         expect(@request.get).to.have.been.calledWith(
           'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
@@ -106,11 +115,13 @@ describe 'ConfigurationGenerator', ->
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'f607eed0-631b-11e5-9887-75e2edd7c9c8'
           '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          '000000-fake-metric-uuid-9999'
           'node-trigger-instance'
           'node-debug-instance'
           'node-interval-instance'
           'node-device-instance'
           'node-channel-instance'
+          'node-flow-metric-instance'
           'engine-data'
           'engine-debug'
           'engine-input'
@@ -129,42 +140,48 @@ describe 'ConfigurationGenerator', ->
 
       it 'should set engine-debug', ->
         expect(@flowConfig['engine-debug'].config).to.deep.equal
-          "node-debug-instance":
-            nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
-          "node-interval-instance":
-            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
-          "node-trigger-instance":
-            nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
-          "node-device-instance":
-            nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
-          "node-channel-instance":
-            nodeId: "9d8e9920-663b-11e5-82a3-c3248b467ade"
+          'node-debug-instance':
+            nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          'node-interval-instance':
+            nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
+          'node-trigger-instance':
+            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
+          'node-device-instance':
+            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
+          'node-channel-instance':
+            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          'node-flow-metric-instance':
+            nodeId: '000000-fake-metric-uuid-9999'
 
       it 'should set engine-data', ->
         expect(@flowConfig['engine-data'].config).to.deep.equal
-          "node-debug-instance":
-            nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
-          "node-interval-instance":
-            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
-          "node-trigger-instance":
-            nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
-          "node-device-instance":
-            nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
-          "node-channel-instance":
-            nodeId: "9d8e9920-663b-11e5-82a3-c3248b467ade"
+          'node-debug-instance':
+            nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          'node-interval-instance':
+            nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
+          'node-trigger-instance':
+            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
+          'node-device-instance':
+            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
+          'node-channel-instance':
+            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          'node-flow-metric-instance':
+            nodeId: '000000-fake-metric-uuid-9999'
 
       it 'should set engine-pulse', ->
         expect(@flowConfig['engine-pulse'].config).to.deep.equal
-          "node-debug-instance":
-            nodeId: "8e74a6c0-55d6-11e5-bd83-1349dc09f6d6"
-          "node-interval-instance":
-            nodeId: "2cf457d0-57eb-11e5-99ea-11ac2aafbb8d"
-          "node-trigger-instance":
-            nodeId: "8a8da890-55d6-11e5-bd83-1349dc09f6d6"
-          "node-device-instance":
-            nodeId: "f607eed0-631b-11e5-9887-75e2edd7c9c8"
-          "node-channel-instance":
-            nodeId: "9d8e9920-663b-11e5-82a3-c3248b467ade"
+          'node-debug-instance':
+            nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
+          'node-interval-instance':
+            nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
+          'node-trigger-instance':
+            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
+          'node-device-instance':
+            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
+          'node-channel-instance':
+            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          'node-flow-metric-instance':
+            nodeId: '000000-fake-metric-uuid-9999'
 
       it 'should set engine-input', ->
         expect(@flowConfig['engine-input'].config).to.deep.equal
@@ -174,6 +191,14 @@ describe 'ConfigurationGenerator', ->
             [{nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'}]
           'c0e0955e-6ab4-4182-8d56-1c8c35a5106d':
             [{nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'}]
+
+      it 'should set node-flow-metric-instance', ->
+        expect(@flowConfig['node-flow-metric-instance'].config).to.deep.equal
+          id: '000000-fake-metric-uuid-9999'
+          category: 'flow-metrics'
+          deviceId: 'f952aacb-5156-4072-bcae-f830334376b1'
+          deploymentUuid: 'the-deployment-uuid'
+          flowUuid: sampleFlow.flowId
 
       it 'should set node-trigger-instance', ->
         expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
@@ -229,6 +254,12 @@ describe 'ConfigurationGenerator', ->
           'node-channel-instance':
             linkedTo: ['engine-pulse']
             type: 'nanocyte-component-channel'
+          'node-flow-metric-instance':
+            linkedTo: ['engine-output', 'engine-pulse']
+            type: 'nanocyte-component-flow-metrics-start'
+          'engine-start':
+            linkedTo: ['node-flow-metric-instance']
+            type: 'engine-start'
           'engine-output':
             type: 'engine-output'
             linkedTo: []

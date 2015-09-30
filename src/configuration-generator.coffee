@@ -3,6 +3,7 @@ debug = require('debug')('nanocyte-configuration-generator')
 ChannelConfig = require './channel-config'
 
 DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+METRICS_DEVICE_ID = 'f952aacb-5156-4072-bcae-f830334376b1'
 
 VIRTUAL_NODES =
   'engine-input':
@@ -32,8 +33,9 @@ VIRTUAL_NODES =
 
 class ConfigurationGenerator
   constructor: (options, dependencies={}) ->
-    {@registryUrl, @meshbluJSON} = options
+    {@registryUrl, @meshbluJSON, @metricsDeviceId} = options
     @registryUrl ?= DEFAULT_REGISTRY_URL
+    @metricsDeviceId ?= METRICS_DEVICE_ID
 
     {@UUID, @request, @channelConfig} = dependencies
     @UUID    ?= require 'node-uuid'
@@ -43,7 +45,7 @@ class ConfigurationGenerator
       secretAccessKey: options.secretAccessKey
 
   configure: (options, callback=->) =>
-    {flowData, flowToken, userData} = options
+    {flowData, flowToken, userData, deploymentUuid} = options
 
     debug 'configuring flow...', flowData
 
@@ -55,7 +57,17 @@ class ConfigurationGenerator
         return callback error if error?
         debug 'fetched registry', nodeRegistry
 
+        flowMetricNode =
+          id: @UUID.v4()
+          category: 'flow-metrics'
+          flowUuid: flowData.flowId
+          deviceId: @metricsDeviceId
+          deploymentUuid: deploymentUuid
+
+        flowData.nodes.push flowMetricNode
+
         flowNodes = _.indexBy flowData.nodes, 'id'
+
         flowConfig = _.mapValues flowNodes, (nodeConfig) =>
           config: nodeConfig
           data: {}

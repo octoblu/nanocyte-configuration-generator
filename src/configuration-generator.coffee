@@ -233,7 +233,7 @@ class ConfigurationGenerator
 
     if template.type == 'operation:set-key'
       config.method = 'PATCH'
-      config.bodyKeys =  [ '{{msg.key}}' ]
+      config.bodyKeys =  [ 'data.{{msg.key}}' ]
       config.bodyValues = [ '{{msg.value}}' ]
 
     return config

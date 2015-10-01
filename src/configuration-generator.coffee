@@ -97,8 +97,8 @@ class ConfigurationGenerator
 
 
         flowStopConfig = _.cloneDeep flowConfig
-        delete flowStopConfig['engine-input']
-        flowStopConfig['router']['config'] = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output'
+        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', 'engine-input'
+        flowStopConfig['router']['config'] = stopRouterConfig
 
         callback null, flowConfig, flowStopConfig
 

@@ -157,6 +157,7 @@ describe 'ConfigurationGenerator', ->
           'node-flow-metric-instance'
           'engine-data'
           'engine-debug'
+          'engine-input'
           'engine-output'
           'engine-pulse'
           'router'

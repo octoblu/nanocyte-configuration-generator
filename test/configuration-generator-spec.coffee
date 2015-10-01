@@ -281,6 +281,9 @@ describe 'ConfigurationGenerator', ->
           'engine-output':
             type: 'engine-output'
             linkedTo: []
+          'node-component-unregister-instance':
+            linkedTo: []
+            type: 'node-component-unregister'
 
         expect(@flowStopConfig.router.config).to.deep.equal links
 

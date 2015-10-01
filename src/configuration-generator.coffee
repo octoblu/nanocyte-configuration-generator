@@ -95,9 +95,12 @@ class ConfigurationGenerator
         flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
         flowConfig['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
 
-
         flowStopConfig = _.cloneDeep flowConfig
-        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', 'engine-input'
+
+        engineStopLinks = flowConfig['router']['config']['engine-stop']?.linkedTo
+        engineStopLinks ?= []
+
+        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
         flowStopConfig['router']['config'] = stopRouterConfig
 
         callback null, flowConfig, flowStopConfig

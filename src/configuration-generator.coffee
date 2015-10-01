@@ -81,8 +81,11 @@ class ConfigurationGenerator
         _.each instanceMap, (instanceConfig, instanceId) =>
           {config,data} = flowConfig[instanceConfig.nodeUuid]
 
-          oauthConfig = @_ohThatOauth userData, _.cloneDeep(config)
-          config = _.defaultsDeep {}, config, oauthConfig
+          config = _.cloneDeep config # prevent accidental mutation
+
+          getSetConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
+          oauthConfig = @_ohThatOauth userData, config
+          config = _.defaultsDeep {}, config, oauthConfig, getSetConfig
 
           flowConfig[instanceId] = {config: config, data: data}
 
@@ -132,7 +135,7 @@ class ConfigurationGenerator
       composedOf = nodeFromRegistry.composedOf ? {}
 
       _.each composedOf, (template, templateId) =>
-        instanceId = @UUID.v4()
+        instanceId = @_generateInstanceId()
         composedConfig = _.cloneDeep template
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId
@@ -209,6 +212,32 @@ class ConfigurationGenerator
 
     return result
 
+  _mutilateGetSetNodes: (options, template) =>
+    return {} unless template.type == 'operation:get-key' || template.type == 'operation:set-key'
+
+    {uuid, token} = options
+
+    bearerToken = new Buffer("#{uuid}:#{token}").toString('base64')
+
+    config =
+      url: "https://meshblu.octoblu.com/v2/devices/#{uuid}"
+      method: 'GET'
+      headerKeys: [
+        'Content-Type'
+        'Authorization'
+      ]
+      headerValues: [
+        'application/json'
+        "Bearer #{bearerToken}"
+      ]
+
+    if template.type == 'operation:set-key'
+      config.method = 'PATCH'
+      config.bodyKeys =  [ '{{msg.key}}' ]
+      config.bodyValues = [ '{{msg.value}}' ]
+
+    return config
+
   _ohThatOauth: (userData, template) =>
     userApiMatch = _.findWhere(userData.api, type: template.type)
     return {} unless userApiMatch?
@@ -257,6 +286,9 @@ class ConfigurationGenerator
     config.oauth.secret ?= config.oauth.consumerSecret
 
     return JSON.parse JSON.stringify config # removes things that are undefined
+
+  _generateInstanceId: =>
+    @UUID.v4()
 
   _generateNonce: =>
     @UUID.v4()

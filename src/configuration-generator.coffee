@@ -69,6 +69,9 @@ class ConfigurationGenerator
         flowNodes = _.indexBy flowData.nodes, 'id'
 
         flowConfig = _.mapValues flowNodes, (nodeConfig) =>
+          nodeConfig.nanocyte ?= {}
+          nodeConfig.nanocyte.nonce = @_generateNonce()
+
           config: nodeConfig
           data: {}
 
@@ -251,5 +254,8 @@ class ConfigurationGenerator
     config.oauth.secret ?= config.oauth.consumerSecret
 
     return JSON.parse JSON.stringify config # removes things that are undefined
+
+  _generateNonce: =>
+    @UUID.v4()
 
 module.exports = ConfigurationGenerator

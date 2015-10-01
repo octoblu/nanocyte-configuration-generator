@@ -28,6 +28,9 @@ describe 'ConfigurationGenerator', ->
         channelConfig: @channelConfig
 
       @sut = new ConfigurationGenerator options, dependencies
+      sinon.stub @sut, '_generateNonce'
+
+      @sut._generateNonce.returns 'i-am-a-nonce'
 
     describe 'when called', ->
       beforeEach (done) ->
@@ -235,6 +238,8 @@ describe 'ConfigurationGenerator', ->
           deviceId: 'f952aacb-5156-4072-bcae-f830334376b1'
           deploymentUuid: 'the-deployment-uuid'
           flowUuid: sampleFlow.flowId
+          nanocyte:
+            nonce: 'i-am-a-nonce'
 
       it 'should set node-trigger-instance', ->
         expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
@@ -252,6 +257,9 @@ describe 'ConfigurationGenerator', ->
             "payloadType": "date",
             "once": false
           },
+          nanocyte: {
+            nonce: 'i-am-a-nonce'
+          }
           "input": 0,
           "output": 1,
           "formTemplatePath": "/pages/node_forms/button_form.html",
@@ -347,6 +355,9 @@ describe 'ConfigurationGenerator', ->
           "category": "channel",
           "online": true,
           "useStaticMessage": true,
+          nanocyte: {
+            nonce: "i-am-a-nonce"
+          },
           "nodeType": {
             "_id": "53c9b839f400e177dca325c8",
             "category": "channel",

@@ -280,6 +280,7 @@ describe 'ConfigurationGenerator', ->
       it 'should set node-get-key-instance', ->
         expect(@flowConfig['node-get-key-instance'].config).to.deep.equal
           id: '40842d14-a536-4d07-9174-fc463c53a5a7'
+          bodyEncoding: 'json'
           category: "operation"
           headerKeys: [
             "Content-Type"
@@ -298,6 +299,7 @@ describe 'ConfigurationGenerator', ->
       it 'should set node-set-key-instance', ->
         expect(@flowConfig['node-set-key-instance'].config).to.deep.equal
           id: '2528d3e8-6993-4184-8049-9c4025a57145'
+          bodyEncoding: 'json'
           category: "operation"
           headerKeys: [
             "Content-Type"

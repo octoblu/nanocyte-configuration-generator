@@ -220,6 +220,7 @@ class ConfigurationGenerator
     bearerToken = new Buffer("#{uuid}:#{token}").toString('base64')
 
     config =
+      bodyEncoding: 'json'
       url: "https://meshblu.octoblu.com/v2/devices/#{uuid}"
       method: 'GET'
       headerKeys: [

@@ -307,7 +307,7 @@ describe 'ConfigurationGenerator', ->
             'application/json'
             'Bearer ZGQzZDc4N2EtNzgzMy00NTgxLTkyODctM2FkMmM1YTEyNzNhOnNvbWUtdG9rZW4='
           ]
-          bodyKeys: [ '{{msg.key}}' ]
+          bodyKeys: [ 'data.{{msg.key}}' ]
           bodyValues: [ '{{msg.value}}' ]
           method: 'PATCH'
           nanocyte:

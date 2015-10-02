@@ -219,6 +219,8 @@ class ConfigurationGenerator
     if config.type == 'operation:throttle'
       config.repeat = config.interval
       delete config.interval
+    if config.type == 'operation:delay'
+      config.fireOnce = true
 
     return config
 

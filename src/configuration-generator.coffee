@@ -81,7 +81,7 @@ class ConfigurationGenerator
         _.each instanceMap, (instanceConfig, instanceId) =>
           {config,data} = flowConfig[instanceConfig.nodeUuid]
 
-          config = _.cloneDeep config # prevent accidental mutation
+          config = @_legacyConversion _.cloneDeep config # prevent accidental mutation
 
           getSetConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
           oauthConfig = @_ohThatOauth userData, config
@@ -211,6 +211,16 @@ class ConfigurationGenerator
     debug 'router config is', result
 
     return result
+
+  _legacyConversion: (config) =>
+    if config.type == 'operation:debounce'
+      config.timeout = config.interval
+      delete config.interval
+    if config.type == 'operation:throttle'
+      config.repeat = config.interval
+      delete config.interval
+
+    return config
 
   _mutilateGetSetNodes: (options, template) =>
     return {} unless template.type == 'operation:get-key' || template.type == 'operation:set-key'

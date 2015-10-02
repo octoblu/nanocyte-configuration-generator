@@ -1274,3 +1274,79 @@ describe 'ConfigurationGenerator', ->
           {nodeId: 'device-instance-1-uuid'}
           {nodeId: 'device-instance-2-uuid'}
         ]
+
+  describe '-> _legacyConversion', ->
+    beforeEach ->
+      dependencies =
+        UUID: @UUID
+        request: @request
+        channelConfig: @channelConfig
+
+      @sut = new ConfigurationGenerator {}, dependencies
+
+    describe 'describe when given a debounce', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:debounce'
+          interval: 1000
+
+      it 'should convert interval to timeout', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:debounce', timeout: 1000
+        )
+
+    describe 'describe when given another debounce interval', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:debounce'
+          interval: 9000
+
+      it 'should convert interval to timeout', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:debounce', timeout: 9000
+        )
+
+    describe 'describe when given another debounce interval', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:debounce'
+          interval: 9000
+          randomProperty: 'wow'
+
+      it 'should convert interval to timeout', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:debounce', timeout: 9000, randomProperty: 'wow'
+        )
+
+    describe 'describe when given a throttle', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:throttle'
+          interval: 18
+
+      it 'should convert interval to repeat', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:throttle', repeat: 18
+        )
+
+    describe 'describe when given a different throttle', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:throttle'
+          interval: 999
+
+      it 'should convert interval to repeat', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:throttle', repeat: 999
+        )
+
+    describe 'describe when given a something that has an interval', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:eject!'
+          interval: 'whatevs'
+
+      it 'should convert interval to repeat', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:eject!', interval: 'whatevs'
+        )

@@ -221,7 +221,7 @@ class ConfigurationGenerator
       delete config.interval
     if config.type == 'operation:delay'
       config.fireOnce = true
-      config.noUnsubcribe = true
+      config.noUnsubscribe = true
 
     return config
 

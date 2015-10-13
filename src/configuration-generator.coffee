@@ -1,5 +1,6 @@
 _ = require 'lodash'
 debug = require('debug')('nanocyte-configuration-generator')
+NodeUuid = require 'node-uuid'
 ChannelConfig = require './channel-config'
 
 DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
@@ -37,8 +38,7 @@ class ConfigurationGenerator
     @registryUrl ?= DEFAULT_REGISTRY_URL
     @metricsDeviceId ?= METRICS_DEVICE_ID
 
-    {@UUID, @request, @channelConfig} = dependencies
-    @UUID    ?= require 'node-uuid'
+    {@request, @channelConfig} = dependencies
     @request ?= require 'request'
     @channelConfig ?= new ChannelConfig
       accessKeyId:     options.accessKeyId
@@ -58,7 +58,7 @@ class ConfigurationGenerator
         debug 'fetched registry', nodeRegistry
 
         flowMetricNode =
-          id: @UUID.v4()
+          id: @_generateFlowMetricId()
           category: 'flow-metrics'
           flowUuid: flowData.flowId
           deviceId: @metricsDeviceId
@@ -123,7 +123,7 @@ class ConfigurationGenerator
     return nodeMap
 
   _generateInstances: (links, flowNodes, nodeRegistry, userData) =>
-    flowNodeMap = {}
+    instanceMap = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}
       nanocyteConfig = config.nanocyte ? {}
@@ -134,25 +134,31 @@ class ConfigurationGenerator
 
       composedOf = nodeFromRegistry.composedOf ? {}
 
+      linkedToData = _.detect composedOf, (value, key) =>
+        value.linkedToData == true
+
+      transactionGroupId = @_generateTransactionGroupId() if linkedToData?
+
       _.each composedOf, (template, templateId) =>
         instanceId = @_generateInstanceId()
         composedConfig = _.cloneDeep template
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId
         composedConfig.debug = config.debug
+        composedConfig.transactionGroupId = transactionGroupId if linkedToData?
 
-        flowNodeMap[instanceId] = composedConfig
+        instanceMap[instanceId] = composedConfig
 
-    return flowNodeMap
+    return instanceMap
 
   _getNodeRegistry: (callback) =>
     @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
       callback error, nodeRegistry
 
-  _buildLinks: (links, flowNodeMap) =>
+  _buildLinks: (links, instanceMap) =>
     debug 'building links with', links
     result = {}
-    _.each flowNodeMap, (config, instanceId) =>
+    _.each instanceMap, (config, instanceId) =>
       nodeLinks = _.filter links, from: config.nodeUuid
       templateLinks = config.linkedTo
       linkedTo = []
@@ -177,12 +183,12 @@ class ConfigurationGenerator
 
       if config.linkedToNext
         linkUuids = _.pluck nodeLinks, 'to'
-        _.each flowNodeMap, (data, key) =>
+        _.each instanceMap, (data, key) =>
           if _.contains linkUuids, data.nodeUuid
             linkedTo.push key if data.linkedToPrev
 
       _.each config.linkedTo, (templateLinkId) =>
-        _.each flowNodeMap, (data, key) =>
+        _.each instanceMap, (data, key) =>
           if data.nodeUuid == config.nodeUuid && data.templateId == templateLinkId
             linkedTo.push key
 
@@ -194,6 +200,8 @@ class ConfigurationGenerator
       result[instanceId] =
         type: config.type
         linkedTo: linkedTo
+
+      result[instanceId].transactionGroupId = config.transactionGroupId if config.transactionGroupId?
 
     result['engine-output'] =
       type: 'engine-output'
@@ -301,10 +309,16 @@ class ConfigurationGenerator
 
     return JSON.parse JSON.stringify config # removes things that are undefined
 
+  _generateFlowMetricId: =>
+    NodeUuid.v4()
+
   _generateInstanceId: =>
-    @UUID.v4()
+    NodeUuid.v4()
 
   _generateNonce: =>
-    @UUID.v4()
+    NodeUuid.v4()
+
+  _generateTransactionGroupId: =>
+    NodeUuid.v4()
 
 module.exports = ConfigurationGenerator

@@ -290,7 +290,7 @@ describe 'ConfigurationGenerator', ->
           nanocyte:
             nonce: 'i-am-a-nonce'
           type: 'operation:get-key'
-          url: 'https://meshblu.octoblu.com/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
+          url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-set-key-instance', ->
         expect(@flowConfig['node-set-key-instance'].config).to.deep.equal
@@ -311,7 +311,7 @@ describe 'ConfigurationGenerator', ->
           nanocyte:
             nonce: 'i-am-a-nonce'
           type: 'operation:set-key'
-          url: 'https://meshblu.octoblu.com/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
+          url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-trigger-instance', ->
         expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {

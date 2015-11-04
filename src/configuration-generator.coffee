@@ -240,9 +240,15 @@ class ConfigurationGenerator
 
     bearerToken = new Buffer("#{uuid}:#{token}").toString('base64')
 
+    {host,protocol,port} = @meshbluJSON
+    host ?= 'meshblu.octoblu.com:443'
+    port ?= 443
+    protocol ?= 'http'
+    protocol = 'https' if parseInt(port) == 443
+
     config =
       bodyEncoding: 'json'
-      url: "https://meshblu.octoblu.com/v2/devices/#{uuid}"
+      url: "#{protocol}://#{host}/v2/devices/#{uuid}"
       method: 'GET'
       headerKeys: [
         'Content-Type'

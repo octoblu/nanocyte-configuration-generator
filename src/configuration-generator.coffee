@@ -242,6 +242,8 @@ class ConfigurationGenerator
 
     {host,protocol,port} = @meshbluJSON
     host ?= 'meshblu.octoblu.com:443'
+    if host == 'meshblu-messages.octoblu.com:443'
+      host = 'meshblu.octoblu.com:443'
     port ?= 443
     protocol ?= 'http'
     protocol = 'https' if parseInt(port) == 443

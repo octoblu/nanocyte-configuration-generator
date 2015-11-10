@@ -2,6 +2,7 @@ _ = require 'lodash'
 debug = require('debug')('nanocyte-configuration-generator')
 NodeUuid = require 'node-uuid'
 ChannelConfig = require './channel-config'
+textCrypt = require './text-crypt'
 
 DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
 METRICS_DEVICE_ID = 'f952aacb-5156-4072-bcae-f830334376b1'
@@ -285,9 +286,9 @@ class ConfigurationGenerator
 
     config = _.defaults {}, template, channelConfig
 
-    # if userApiMatch.token_crypt
-    #   userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
-    #   userApiMatch.token  = textCrypt.decrypt userApiMatch.token_crypt
+    if userApiMatch.token_crypt
+      userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
+      userApiMatch.token  = textCrypt.decrypt userApiMatch.token_crypt
 
     config.apikey = userApiMatch.apikey
 

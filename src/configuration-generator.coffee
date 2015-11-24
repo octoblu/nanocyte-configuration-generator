@@ -65,6 +65,7 @@ class ConfigurationGenerator
           deviceId: @metricsDeviceId
           deploymentUuid: deploymentUuid
 
+        flowData.nodes ?= []
         flowData.nodes.push flowMetricNode
 
         flowNodes = _.indexBy flowData.nodes, 'id'

@@ -302,6 +302,8 @@ class ConfigurationGenerator
       expiresOn: userApiMatch.expiresOn
       defaultParams: userApiMatch.defaultParams
 
+    config.defaultParams = userApiMatch.defaultParams
+
     channelOauth =  channelApiMatch.oauth?[process.env.NODE_ENV]
     channelOauth ?= channelApiMatch.oauth
     channelOauth ?= {tokenMethod: channelApiMatch.auth_strategy}

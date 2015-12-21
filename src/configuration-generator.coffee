@@ -288,8 +288,11 @@ class ConfigurationGenerator
     config = _.defaults {}, template, channelConfig
 
     if userApiMatch.token_crypt
-      userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
       userApiMatch.token  = textCrypt.decrypt userApiMatch.token_crypt
+    if userApiMatch.secret_crypt
+      userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
+    if userApiMatch.refreshToken_crypt
+      userApiMatch.refreshToken = textCrypt.decrypt userApiMatch.refreshToken_crypt
 
     config.apikey = userApiMatch.apikey
 

@@ -138,6 +138,7 @@ describe 'ConfigurationGenerator', ->
           'router'
           'engine-start'
           'engine-stop'
+          'subscribe-devices'
         ]
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
@@ -163,6 +164,7 @@ describe 'ConfigurationGenerator', ->
           'router'
           'engine-start'
           'engine-stop'
+          'subscribe-devices'
         ]
 
 
@@ -231,6 +233,11 @@ describe 'ConfigurationGenerator', ->
             [{nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'}]
           'c0e0955e-6ab4-4182-8d56-1c8c35a5106d':
             [{nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'}]
+
+      it 'should set subscribe-devices', ->
+        expect(@flowConfig['subscribe-devices'].config).to.deep.equal [
+          'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
+        ]
 
       it 'should set node-flow-metric-instance', ->
         expect(@flowConfig['node-flow-metric-instance'].config).to.deep.equal

@@ -30,6 +30,9 @@ VIRTUAL_NODES =
   'engine-stop':
     config: {}
     data: {}
+  'subscribe-devices':
+    config: {}
+    data: {}
 
 class ConfigurationGenerator
   constructor: (options, dependencies={}) ->
@@ -94,7 +97,7 @@ class ConfigurationGenerator
         flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
         flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
         flowConfig['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
-
+        flowConfig['subscribe-devices'].config = @_getSubscribeDevices flowNodes
 
         flowStopConfig = _.cloneDeep flowConfig
         stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', 'engine-input'
@@ -142,6 +145,10 @@ class ConfigurationGenerator
   _getNodeRegistry: (callback) =>
     @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
       callback error, nodeRegistry
+
+  _getSubscribeDevices: (flowConfig) =>
+    devices = _.where flowConfig, category: 'device'
+    _.pluck devices, 'uuid'
 
   _buildLinks: (links, flowNodeMap) =>
     debug 'building links with', links

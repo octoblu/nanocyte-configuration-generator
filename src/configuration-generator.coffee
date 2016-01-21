@@ -1,6 +1,8 @@
 _ = require 'lodash'
 debug = require('debug')('nanocyte-configuration-generator')
+NodeUuid = require 'node-uuid'
 ChannelConfig = require './channel-config'
+textCrypt = require './text-crypt'
 
 DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
 METRICS_DEVICE_ID = 'f952aacb-5156-4072-bcae-f830334376b1'
@@ -40,8 +42,7 @@ class ConfigurationGenerator
     @registryUrl ?= DEFAULT_REGISTRY_URL
     @metricsDeviceId ?= METRICS_DEVICE_ID
 
-    {@UUID, @request, @channelConfig} = dependencies
-    @UUID    ?= require 'node-uuid'
+    {@request, @channelConfig} = dependencies
     @request ?= require 'request'
     @channelConfig ?= new ChannelConfig
       accessKeyId:     options.accessKeyId
@@ -61,12 +62,13 @@ class ConfigurationGenerator
         debug 'fetched registry', nodeRegistry
 
         flowMetricNode =
-          id: @UUID.v4()
+          id: @_generateFlowMetricId()
           category: 'flow-metrics'
           flowUuid: flowData.flowId
           deviceId: @metricsDeviceId
           deploymentUuid: deploymentUuid
 
+        flowData.nodes ?= []
         flowData.nodes.push flowMetricNode
 
         flowNodes = _.indexBy flowData.nodes, 'id'
@@ -84,8 +86,11 @@ class ConfigurationGenerator
         _.each instanceMap, (instanceConfig, instanceId) =>
           {config,data} = flowConfig[instanceConfig.nodeUuid]
 
-          oauthConfig = @_ohThatOauth userData, _.cloneDeep(config)
-          config = _.defaultsDeep {}, config, oauthConfig
+          config = @_legacyConversion _.cloneDeep config # prevent accidental mutation
+
+          getSetConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
+          oauthConfig = @_ohThatOauth userData, config
+          config = _.defaultsDeep {}, config, oauthConfig, getSetConfig
 
           flowConfig[instanceId] = {config: config, data: data}
 
@@ -100,7 +105,11 @@ class ConfigurationGenerator
         flowConfig['subscribe-devices'].config = @_getSubscribeDevices flowNodes
 
         flowStopConfig = _.cloneDeep flowConfig
-        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', 'engine-input'
+
+        engineStopLinks = flowConfig['router']['config']['engine-stop']?.linkedTo
+        engineStopLinks ?= []
+
+        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
         flowStopConfig['router']['config'] = stopRouterConfig
 
         callback null, flowConfig, flowStopConfig
@@ -120,7 +129,7 @@ class ConfigurationGenerator
     return nodeMap
 
   _generateInstances: (links, flowNodes, nodeRegistry, userData) =>
-    flowNodeMap = {}
+    instanceMap = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}
       nanocyteConfig = config.nanocyte ? {}
@@ -131,16 +140,22 @@ class ConfigurationGenerator
 
       composedOf = nodeFromRegistry.composedOf ? {}
 
+      linkedToData = _.detect composedOf, (value, key) =>
+        value.linkedToData == true
+
+      transactionGroupId = @_generateTransactionGroupId() if linkedToData?
+
       _.each composedOf, (template, templateId) =>
-        instanceId = @UUID.v4()
+        instanceId = @_generateInstanceId()
         composedConfig = _.cloneDeep template
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId
         composedConfig.debug = config.debug
+        composedConfig.transactionGroupId = transactionGroupId if linkedToData?
 
-        flowNodeMap[instanceId] = composedConfig
+        instanceMap[instanceId] = composedConfig
 
-    return flowNodeMap
+    return instanceMap
 
   _getNodeRegistry: (callback) =>
     @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
@@ -150,10 +165,10 @@ class ConfigurationGenerator
     devices = _.where flowConfig, category: 'device'
     _.pluck devices, 'uuid'
 
-  _buildLinks: (links, flowNodeMap) =>
+  _buildLinks: (links, instanceMap) =>
     debug 'building links with', links
     result = {}
-    _.each flowNodeMap, (config, instanceId) =>
+    _.each instanceMap, (config, instanceId) =>
       nodeLinks = _.filter links, from: config.nodeUuid
       templateLinks = config.linkedTo
       linkedTo = []
@@ -178,12 +193,12 @@ class ConfigurationGenerator
 
       if config.linkedToNext
         linkUuids = _.pluck nodeLinks, 'to'
-        _.each flowNodeMap, (data, key) =>
+        _.each instanceMap, (data, key) =>
           if _.contains linkUuids, data.nodeUuid
             linkedTo.push key if data.linkedToPrev
 
       _.each config.linkedTo, (templateLinkId) =>
-        _.each flowNodeMap, (data, key) =>
+        _.each instanceMap, (data, key) =>
           if data.nodeUuid == config.nodeUuid && data.templateId == templateLinkId
             linkedTo.push key
 
@@ -195,6 +210,8 @@ class ConfigurationGenerator
       result[instanceId] =
         type: config.type
         linkedTo: linkedTo
+
+      result[instanceId].transactionGroupId = config.transactionGroupId if config.transactionGroupId?
 
     result['engine-output'] =
       type: 'engine-output'
@@ -213,6 +230,54 @@ class ConfigurationGenerator
 
     return result
 
+  _legacyConversion: (config) =>
+    if config.type == 'operation:debounce'
+      config.timeout = config.interval
+      delete config.interval
+    if config.type == 'operation:throttle'
+      config.repeat = config.interval
+      delete config.interval
+    if config.type == 'operation:delay'
+      config.fireOnce = true
+      config.noUnsubscribe = true
+
+    return config
+
+  _mutilateGetSetNodes: (options, template) =>
+    return {} unless template.type == 'operation:get-key' || template.type == 'operation:set-key'
+
+    {uuid, token} = options
+
+    bearerToken = new Buffer("#{uuid}:#{token}").toString('base64')
+
+    {host,protocol,port} = @meshbluJSON
+    host ?= 'meshblu.octoblu.com:443'
+    if host == 'meshblu-messages.octoblu.com:443'
+      host = 'meshblu.octoblu.com:443'
+    port ?= 443
+    protocol ?= 'http'
+    protocol = 'https' if parseInt(port) == 443
+
+    config =
+      bodyEncoding: 'json'
+      url: "#{protocol}://#{host}/v2/devices/#{uuid}"
+      method: 'GET'
+      headerKeys: [
+        'Content-Type'
+        'Authorization'
+      ]
+      headerValues: [
+        'application/json'
+        "Bearer #{bearerToken}"
+      ]
+
+    if template.type == 'operation:set-key'
+      config.method = 'PATCH'
+      config.bodyKeys =  [ 'data.{{msg.key}}' ]
+      config.bodyValues = [ '{{msg.value}}' ]
+
+    return config
+
   _ohThatOauth: (userData, template) =>
     userApiMatch = _.findWhere(userData.api, type: template.type)
     return {} unless userApiMatch?
@@ -230,9 +295,12 @@ class ConfigurationGenerator
 
     config = _.defaults {}, template, channelConfig
 
-    # if userApiMatch.token_crypt
-    #   userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
-    #   userApiMatch.token  = textCrypt.decrypt userApiMatch.token_crypt
+    if userApiMatch.token_crypt
+      userApiMatch.token  = textCrypt.decrypt userApiMatch.token_crypt
+    if userApiMatch.secret_crypt
+      userApiMatch.secret = textCrypt.decrypt userApiMatch.secret_crypt
+    if userApiMatch.refreshToken_crypt
+      userApiMatch.refreshToken = textCrypt.decrypt userApiMatch.refreshToken_crypt
 
     config.apikey = userApiMatch.apikey
 
@@ -244,6 +312,8 @@ class ConfigurationGenerator
       refreshToken: userApiMatch.refreshToken
       expiresOn: userApiMatch.expiresOn
       defaultParams: userApiMatch.defaultParams
+
+    config.defaultParams = userApiMatch.defaultParams
 
     channelOauth =  channelApiMatch.oauth?[process.env.NODE_ENV]
     channelOauth ?= channelApiMatch.oauth
@@ -262,7 +332,16 @@ class ConfigurationGenerator
 
     return JSON.parse JSON.stringify config # removes things that are undefined
 
+  _generateFlowMetricId: =>
+    NodeUuid.v4()
+
+  _generateInstanceId: =>
+    NodeUuid.v4()
+
   _generateNonce: =>
-    @UUID.v4()
+    NodeUuid.v4()
+
+  _generateTransactionGroupId: =>
+    NodeUuid.v4()
 
 module.exports = ConfigurationGenerator

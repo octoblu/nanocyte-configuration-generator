@@ -6,15 +6,10 @@ sampleFlow = require './data/sample-flow.json'
 
 describe 'ConfigurationGenerator', ->
   beforeEach ->
-    @UUID = require 'node-uuid'
-    sinon.stub @UUID, 'v4'
     @request = get: sinon.stub()
     @channelConfig =
       fetch: sinon.stub()
       get: sinon.stub()
-
-  afterEach ->
-    @UUID.v4.restore()
 
   describe '->configure', ->
     beforeEach ->
@@ -23,12 +18,14 @@ describe 'ConfigurationGenerator', ->
           server: 'some-server'
 
       dependencies =
-        UUID: @UUID
         request: @request
         channelConfig: @channelConfig
 
       @sut = new ConfigurationGenerator options, dependencies
       sinon.stub @sut, '_generateNonce'
+      sinon.stub @sut, '_generateInstanceId'
+      sinon.stub @sut, '_generateTransactionGroupId'
+      sinon.stub @sut, '_generateFlowMetricId'
 
       @sut._generateNonce.returns 'i-am-a-nonce'
 
@@ -73,19 +70,33 @@ describe 'ConfigurationGenerator', ->
                 "type": "nanocyte-component-flow-metrics-start"
                 "linkedFromStart": true
                 "linkedToOutput": true
+          "get-key":
+            "composedOf":
+              "http-formatter":
+                "type": "nanocyte-component-http-formatter"
+                "linkedToPrev": true
+                "linkedToNext": true
+          "set-key":
+            "composedOf":
+              "http-formatter":
+                "type": "nanocyte-component-http-formatter"
+                "linkedToPrev": true
+                "linkedToNext": true
 
         githubConfig = require './data/github-channel.json'
         @request.get.yields null, {}, nodeRegistry
         @channelConfig.fetch.yields null
         @channelConfig.get.withArgs('channel:github').returns githubConfig
-        @UUID.v4.onCall(0).returns '000000-fake-metric-uuid-9999'
-        @UUID.v4.onCall(1).returns 'node-trigger-instance'
-        @UUID.v4.onCall(2).returns 'node-debug-instance'
-        @UUID.v4.onCall(3).returns 'node-interval-instance'
-        @UUID.v4.onCall(4).returns 'node-device-instance'
-        @UUID.v4.onCall(5).returns 'node-channel-instance'
-        @UUID.v4.onCall(6).returns 'node-component-unregister-instance'
-        @UUID.v4.onCall(7).returns 'node-flow-metric-instance'
+        @sut._generateFlowMetricId.onCall(0).returns '000000-fake-metric-uuid-9999'
+        @sut._generateInstanceId.onCall(0).returns 'node-trigger-instance'
+        @sut._generateInstanceId.onCall(1).returns 'node-debug-instance'
+        @sut._generateInstanceId.onCall(2).returns 'node-interval-instance'
+        @sut._generateInstanceId.onCall(3).returns 'node-device-instance'
+        @sut._generateInstanceId.onCall(4).returns 'node-channel-instance'
+        @sut._generateInstanceId.onCall(5).returns 'node-component-unregister-instance'
+        @sut._generateInstanceId.onCall(6).returns 'node-get-key-instance'
+        @sut._generateInstanceId.onCall(7).returns 'node-set-key-instance'
+        @sut._generateInstanceId.onCall(8).returns 'node-flow-metric-instance'
 
         userData =
           api:
@@ -122,6 +133,8 @@ describe 'ConfigurationGenerator', ->
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'f607eed0-631b-11e5-9887-75e2edd7c9c8'
           '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          '40842d14-a536-4d07-9174-fc463c53a5a7'
+          '2528d3e8-6993-4184-8049-9c4025a57145'
           '000000-fake-metric-uuid-9999'
           'node-trigger-instance'
           'node-debug-instance'
@@ -130,6 +143,8 @@ describe 'ConfigurationGenerator', ->
           'node-channel-instance'
           'node-component-unregister-instance'
           'node-flow-metric-instance'
+          'node-get-key-instance'
+          'node-set-key-instance'
           'engine-data'
           'engine-debug'
           'engine-input'
@@ -148,6 +163,8 @@ describe 'ConfigurationGenerator', ->
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
           'f607eed0-631b-11e5-9887-75e2edd7c9c8'
           '9d8e9920-663b-11e5-82a3-c3248b467ade'
+          '40842d14-a536-4d07-9174-fc463c53a5a7'
+          '2528d3e8-6993-4184-8049-9c4025a57145'
           '000000-fake-metric-uuid-9999'
           'node-component-unregister-instance'
           'node-trigger-instance'
@@ -156,6 +173,8 @@ describe 'ConfigurationGenerator', ->
           'node-device-instance'
           'node-channel-instance'
           'node-flow-metric-instance'
+          'node-get-key-instance'
+          'node-set-key-instance'
           'engine-data'
           'engine-debug'
           'engine-input'
@@ -190,6 +209,10 @@ describe 'ConfigurationGenerator', ->
             nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-flow-metric-instance':
             nodeId: '000000-fake-metric-uuid-9999'
+          'node-get-key-instance':
+            nodeId: '40842d14-a536-4d07-9174-fc463c53a5a7'
+          'node-set-key-instance':
+            nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
 
       it 'should set engine-data', ->
         expect(@flowConfig['engine-data'].config).to.deep.equal
@@ -207,6 +230,10 @@ describe 'ConfigurationGenerator', ->
             nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-flow-metric-instance':
             nodeId: '000000-fake-metric-uuid-9999'
+          'node-get-key-instance':
+            nodeId: '40842d14-a536-4d07-9174-fc463c53a5a7'
+          'node-set-key-instance':
+            nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
 
       it 'should set engine-pulse', ->
         expect(@flowConfig['engine-pulse'].config).to.deep.equal
@@ -224,6 +251,10 @@ describe 'ConfigurationGenerator', ->
             nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
           'node-flow-metric-instance':
             nodeId: '000000-fake-metric-uuid-9999'
+          'node-get-key-instance':
+            nodeId: '40842d14-a536-4d07-9174-fc463c53a5a7'
+          'node-set-key-instance':
+            nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
 
       it 'should set engine-input', ->
         expect(@flowConfig['engine-input'].config).to.deep.equal
@@ -248,6 +279,46 @@ describe 'ConfigurationGenerator', ->
           flowUuid: sampleFlow.flowId
           nanocyte:
             nonce: 'i-am-a-nonce'
+
+      it 'should set node-get-key-instance', ->
+        expect(@flowConfig['node-get-key-instance'].config).to.deep.equal
+          id: '40842d14-a536-4d07-9174-fc463c53a5a7'
+          bodyEncoding: 'json'
+          category: "operation"
+          headerKeys: [
+            "Content-Type"
+            "Authorization"
+          ]
+          headerValues: [
+            'application/json'
+            'Bearer ZGQzZDc4N2EtNzgzMy00NTgxLTkyODctM2FkMmM1YTEyNzNhOnNvbWUtdG9rZW4='
+          ]
+          method: 'GET'
+          nanocyte:
+            nonce: 'i-am-a-nonce'
+          type: 'operation:get-key'
+          url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
+
+      it 'should set node-set-key-instance', ->
+        expect(@flowConfig['node-set-key-instance'].config).to.deep.equal
+          id: '2528d3e8-6993-4184-8049-9c4025a57145'
+          bodyEncoding: 'json'
+          category: "operation"
+          headerKeys: [
+            "Content-Type"
+            "Authorization"
+          ]
+          headerValues: [
+            'application/json'
+            'Bearer ZGQzZDc4N2EtNzgzMy00NTgxLTkyODctM2FkMmM1YTEyNzNhOnNvbWUtdG9rZW4='
+          ]
+          bodyKeys: [ 'data.{{msg.key}}' ]
+          bodyValues: [ '{{msg.value}}' ]
+          method: 'PATCH'
+          nanocyte:
+            nonce: 'i-am-a-nonce'
+          type: 'operation:set-key'
+          url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-trigger-instance', ->
         expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
@@ -288,6 +359,9 @@ describe 'ConfigurationGenerator', ->
           'engine-output':
             type: 'engine-output'
             linkedTo: []
+          'node-component-unregister-instance':
+            linkedTo: []
+            type: 'node-component-unregister'
 
         expect(@flowStopConfig.router.config).to.deep.equal links
 
@@ -317,6 +391,12 @@ describe 'ConfigurationGenerator', ->
           'node-channel-instance':
             linkedTo: ['engine-pulse']
             type: 'nanocyte-component-channel'
+          'node-get-key-instance':
+            linkedTo: [ 'node-debug-instance', 'engine-pulse' ]
+            type: 'nanocyte-component-http-formatter'
+          'node-set-key-instance':
+            linkedTo: [ 'node-debug-instance', 'engine-pulse' ]
+            type: 'nanocyte-component-http-formatter'
           'node-flow-metric-instance':
             linkedTo: ['engine-output', 'engine-pulse']
             type: 'nanocyte-component-flow-metrics-start'
@@ -444,7 +524,9 @@ describe 'ConfigurationGenerator', ->
 
   describe '-> _buildLinks', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator {}, {UUID: @UUID, request: @request, channelConfig: {}}
+      @sut = new ConfigurationGenerator {}, {request: @request, channelConfig: {}}
+      sinon.stub @sut, '_generateInstanceId'
+      sinon.stub @sut, '_generateTransactionGroupId'
 
     describe 'when one node is linked to another', ->
       beforeEach ->
@@ -478,8 +560,8 @@ describe 'ConfigurationGenerator', ->
                 linkedToPrev: true
 
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'some-other-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -534,8 +616,8 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-tuff'
                 linkedToPrev: true
 
-        @UUID.v4.onCall(0).returns 'some-other-node-instance-uuid'
-        @UUID.v4.onCall(1).returns 'yet-some-other-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-other-node-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'yet-some-other-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -606,9 +688,9 @@ describe 'ConfigurationGenerator', ->
                 linkedToPrev: true
 
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
-        @UUID.v4.onCall(2).returns 'another-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'some-other-node-instance-uuid'
+        @sut._generateInstanceId.onCall(2).returns 'another-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -697,10 +779,10 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-buff'
                 linkedToPrev: true
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
-        @UUID.v4.onCall(2).returns 'some-different-node-instance-uuid'
-        @UUID.v4.onCall(3).returns 'another-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'some-other-node-instance-uuid'
+        @sut._generateInstanceId.onCall(2).returns 'some-different-node-instance-uuid'
+        @sut._generateInstanceId.onCall(3).returns 'another-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -750,7 +832,7 @@ describe 'ConfigurationGenerator', ->
                 linkedToOutput: true
                 type: 'nanocyte-node-debug'
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -791,7 +873,7 @@ describe 'ConfigurationGenerator', ->
               'bar-1':
                 type: 'nanocyte-node-bar'
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -832,7 +914,7 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-bar'
                 linkedToOutput: true
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -873,7 +955,7 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-bar'
                 linkedToPulse: true
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should set the flow links on the router', ->
@@ -915,7 +997,8 @@ describe 'ConfigurationGenerator', ->
                 linkedToData: true
 
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateTransactionGroupId.onCall(0).returns 'some-node-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
 
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
@@ -923,6 +1006,7 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-save-me'
+            transactionGroupId: 'some-node-uuid'
             linkedTo: ['engine-data']
           'engine-output':
             type: 'engine-output'
@@ -995,11 +1079,13 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-debug'
                 linkedToPrev: true
 
-        @UUID.v4.onCall(0).returns 'trigger-instance-uuid'
-        @UUID.v4.onCall(1).returns 'throttle-push-instance-uuid'
-        @UUID.v4.onCall(2).returns 'throttle-pop-instance-uuid'
-        @UUID.v4.onCall(3).returns 'throttle-emit-instance-uuid'
-        @UUID.v4.onCall(4).returns 'debug-instance-uuid'
+        @sut._generateTransactionGroupId.onCall(0).returns 'some-throttle-uuid'
+
+        @sut._generateInstanceId.onCall(0).returns 'trigger-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'throttle-push-instance-uuid'
+        @sut._generateInstanceId.onCall(2).returns 'throttle-pop-instance-uuid'
+        @sut._generateInstanceId.onCall(3).returns 'throttle-emit-instance-uuid'
+        @sut._generateInstanceId.onCall(4).returns 'debug-instance-uuid'
 
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
@@ -1016,12 +1102,15 @@ describe 'ConfigurationGenerator', ->
             linkedTo: ['throttle-pop-instance-uuid', 'throttle-emit-instance-uuid']
           'throttle-push-instance-uuid':
             type: 'nanocyte-node-throttle-push'
+            transactionGroupId: 'some-throttle-uuid'
             linkedTo: ['engine-data']
           'throttle-pop-instance-uuid':
             type: 'nanocyte-node-throttle-pop'
+            transactionGroupId: 'some-throttle-uuid'
             linkedTo: ['throttle-emit-instance-uuid', 'engine-data']
           'throttle-emit-instance-uuid':
             type: 'nanocyte-node-throttle-emit'
+            transactionGroupId: 'some-throttle-uuid'
             linkedTo: ['debug-instance-uuid', 'engine-pulse']
           'debug-instance-uuid':
             type: 'nanocyte-node-debug'
@@ -1080,10 +1169,10 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-debug'
                 linkedToPrev: true
 
-        @UUID.v4.onCall(0).returns 'interval-instance-uuid'
-        @UUID.v4.onCall(1).returns 'interval-start-instance-uuid'
-        @UUID.v4.onCall(2).returns 'interval-stop-instance-uuid'
-        @UUID.v4.onCall(3).returns 'debug-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'interval-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'interval-start-instance-uuid'
+        @sut._generateInstanceId.onCall(2).returns 'interval-stop-instance-uuid'
+        @sut._generateInstanceId.onCall(3).returns 'debug-instance-uuid'
 
         @result = @sut._buildLinks links, @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
@@ -1127,7 +1216,8 @@ describe 'ConfigurationGenerator', ->
 
   describe '-> _buildNodeMap', ->
     beforeEach ->
-      @sut = new ConfigurationGenerator {}, {UUID: @UUID, channelConfig: {}}
+      @sut = new ConfigurationGenerator {}, {channelConfig: {}}
+      sinon.stub @sut, '_generateInstanceId'
 
     describe 'when one node is linked to another', ->
       beforeEach ->
@@ -1158,8 +1248,8 @@ describe 'ConfigurationGenerator', ->
                 type: 'nanocyte-node-fluff'
                 linkedToPrev: true
 
-        @UUID.v4.onCall(0).returns 'some-node-instance-uuid'
-        @UUID.v4.onCall(1).returns 'some-other-node-instance-uuid'
+        @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
+        @sut._generateInstanceId.onCall(1).returns 'some-other-node-instance-uuid'
         @result = @sut._buildNodeMap @sut._generateInstances(links, flowConfig, nodeRegistry, {})
 
       it 'should build the node map', ->
@@ -1190,6 +1280,7 @@ describe 'ConfigurationGenerator', ->
             linkedToInput: true
 
         @sut = new ConfigurationGenerator {}, {channelConfig: {}}
+        sinon.stub @sut, '_generateInstanceId'
         @result = @sut._buildMeshblutoNodeMap flow, instanceMap
 
       it 'should send back a map linking both devices to the same uuid', ->
@@ -1197,3 +1288,79 @@ describe 'ConfigurationGenerator', ->
           {nodeId: 'device-instance-1-uuid'}
           {nodeId: 'device-instance-2-uuid'}
         ]
+
+  describe '-> _legacyConversion', ->
+    beforeEach ->
+      dependencies =
+        request: @request
+        channelConfig: @channelConfig
+
+      @sut = new ConfigurationGenerator {}, dependencies
+      sinon.stub @sut, '_generateInstanceId'
+
+    describe 'describe when given a debounce', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:debounce'
+          interval: 1000
+
+      it 'should convert interval to timeout', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:debounce', timeout: 1000
+        )
+
+    describe 'describe when given another debounce interval', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:debounce'
+          interval: 9000
+
+      it 'should convert interval to timeout', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:debounce', timeout: 9000
+        )
+
+    describe 'describe when given another debounce interval', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:debounce'
+          interval: 9000
+          randomProperty: 'wow'
+
+      it 'should convert interval to timeout', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:debounce', timeout: 9000, randomProperty: 'wow'
+        )
+
+    describe 'describe when given a throttle', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:throttle'
+          interval: 18
+
+      it 'should convert interval to repeat', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:throttle', repeat: 18
+        )
+
+    describe 'describe when given a different throttle', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:throttle'
+          interval: 999
+
+      it 'should convert interval to repeat', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:throttle', repeat: 999
+        )
+
+    describe 'describe when given a something that has an interval', ->
+      beforeEach ->
+        @result = @sut._legacyConversion
+          type: 'operation:eject!'
+          interval: 'whatevs'
+
+      it 'should convert interval to repeat', ->
+        expect(@result).to.deep.equal(
+          type: 'operation:eject!', interval: 'whatevs'
+        )

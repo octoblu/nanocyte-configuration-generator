@@ -163,7 +163,7 @@ class ConfigurationGenerator
 
   _getSubscribeDevices: (flowConfig) =>
     devices = _.where flowConfig, category: 'device'
-    _.pluck devices, 'uuid'
+    return broadcast: _.pluck devices, 'uuid'
 
   _buildLinks: (links, instanceMap) =>
     debug 'building links with', links

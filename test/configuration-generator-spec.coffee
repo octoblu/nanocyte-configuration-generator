@@ -266,9 +266,10 @@ describe 'ConfigurationGenerator', ->
             [{nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'}]
 
       it 'should set subscribe-devices', ->
-        expect(@flowConfig['subscribe-devices'].config).to.deep.equal [
-          'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
-        ]
+        expect(@flowConfig['subscribe-devices'].config).to.deep.equal
+          'broadcast': [
+            'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
+          ]
 
       it 'should set node-flow-metric-instance', ->
         expect(@flowConfig['node-flow-metric-instance'].config).to.deep.equal

@@ -212,6 +212,7 @@
       "bodyParams": {},
       "url": "https://:hostname/setup/api/settings/authorized-keys",
       "method": "POST",
+      "bodyFormat": "json",
       "needsConfiguration": false,
       "needsSetup": false
     },

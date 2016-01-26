@@ -98,19 +98,7 @@ describe 'ConfigurationGenerator', ->
         @sut._generateInstanceId.onCall(7).returns 'node-set-key-instance'
         @sut._generateInstanceId.onCall(8).returns 'node-flow-metric-instance'
 
-        userData =
-          api:
-            [
-              "authtype": "oauth"
-              "token": "6387e3547c75a4e5804957319e37b7b0346097dc"
-              "channelid": "532a258a50411e5802cb8053"
-              "_id": "55fc50d1aed35f0f0009b9c3"
-              "type": "channel:github"
-              "uuid": "e56842b0-5e2e-11e5-8abf-b33a470ad64b"
-            ]
-
         options =
-          userData: userData
           flowData: sampleFlow
           flowToken: 'some-token'
           deploymentUuid: 'the-deployment-uuid'
@@ -435,6 +423,7 @@ describe 'ConfigurationGenerator', ->
       it 'should set node-channel-instance', ->
         expect(@flowConfig['node-channel-instance'].config).to.deep.equal {
           "id": "9d8e9920-663b-11e5-82a3-c3248b467ade",
+          "channelApiMatch": require './data/github-channel.json'
           "resourceType": "flow-node",
           "channelid": "532a258a50411e5802cb8053",
           "channelActivationId": "55fc50d1aed35f0f0009b9c3",
@@ -444,8 +433,8 @@ describe 'ConfigurationGenerator', ->
           "category": "channel",
           "online": true,
           "useStaticMessage": true,
-          nanocyte: {
-            nonce: "i-am-a-nonce"
+          "nanocyte": {
+            "nonce": "i-am-a-nonce"
           },
           "nodeType": {
             "_id": "53c9b839f400e177dca325c8",
@@ -511,15 +500,6 @@ describe 'ConfigurationGenerator', ->
           "method": "POST",
           "needsConfiguration": false,
           "needsSetup": false,
-          "oauth": {
-            "clientID": "development-client-id",
-            "clientSecret": "development-client-secret",
-            "callbackURL": "http://localhost:8080/api/oauth/github/callback",
-            "tokenMethod": "access_token_query",
-            "key": "development-client-id",
-            "secret": "development-client-secret",
-            "access_token": "6387e3547c75a4e5804957319e37b7b0346097dc"
-          },
           "bodyFormat": "json"
         }
 

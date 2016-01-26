@@ -49,7 +49,7 @@ class ConfigurationGenerator
       secretAccessKey: options.secretAccessKey
 
   configure: (options, callback=->) =>
-    {flowData, flowToken, userData, deploymentUuid} = options
+    {flowData, flowToken, deploymentUuid} = options
 
     debug 'configuring flow...', flowData
 
@@ -81,7 +81,7 @@ class ConfigurationGenerator
           data: {}
 
         flowConfig = _.assign flowConfig, _.cloneDeep(VIRTUAL_NODES)
-        instanceMap = @_generateInstances flowData.links, flowConfig, nodeRegistry, userData
+        instanceMap = @_generateInstances flowData.links, flowConfig, nodeRegistry
 
         _.each instanceMap, (instanceConfig, instanceId) =>
           {config,data} = flowConfig[instanceConfig.nodeUuid]
@@ -90,9 +90,10 @@ class ConfigurationGenerator
 
           getSetConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
 
-          template = _.cloneDeep config
-          channelApiMatch = @channelConfig.get template.type
-          config = _.defaultsDeep {channelApiMatch, template}, config, getSetConfig
+          channelApiMatch = @channelConfig.get config.type
+          defaultConfig = {}
+          defaultConfig.channelApiMatch = channelApiMatch if channelApiMatch?
+          config = _.defaultsDeep defaultConfig, config, getSetConfig
 
           flowConfig[instanceId] = {config: config, data: data}
 
@@ -130,7 +131,7 @@ class ConfigurationGenerator
       nodeMap[nodeConfig.config.uuid].push {nodeId: instance.nodeUuid}
     return nodeMap
 
-  _generateInstances: (links, flowNodes, nodeRegistry, userData) =>
+  _generateInstances: (links, flowNodes, nodeRegistry) =>
     instanceMap = {}
     _.each flowNodes, (nodeConfig, nodeUuid) =>
       config = nodeConfig.config ? {}

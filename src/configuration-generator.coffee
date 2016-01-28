@@ -127,7 +127,13 @@ class ConfigurationGenerator
     _.each inputInstances, (instance) =>
       nodeConfig = flowConfig[instance.nodeUuid]
       nodeMap[nodeConfig.config.uuid] ?= []
-      nodeMap[nodeConfig.config.uuid].push {nodeId: instance.nodeUuid}
+
+      alias = nodeConfig.config.alias
+      aNodeMap = nodeId: instance.nodeUuid
+      aNodeMap.alias = alias if alias?
+
+      nodeMap[nodeConfig.config.uuid].push aNodeMap
+
     return nodeMap
 
   _generateInstances: (links, flowNodes, nodeRegistry) =>

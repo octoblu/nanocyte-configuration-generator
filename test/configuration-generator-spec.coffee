@@ -1270,6 +1270,29 @@ describe 'ConfigurationGenerator', ->
           {nodeId: 'device-instance-2-uuid'}
         ]
 
+  describe '-> _buildMeshblutoNodeMap', ->
+    describe 'when the input node has an alias', ->
+      beforeEach ->
+        flow =
+          'device-instance-1-uuid':
+            config:
+              uuid: 'device-uuid'
+              alias: 'some-device-alias'
+
+        instanceMap =
+          'device-instance-1':
+            nodeUuid: 'device-instance-1-uuid'
+            linkedToInput: true
+
+        @sut = new ConfigurationGenerator {}, {channelConfig: {}}
+        sinon.stub @sut, '_generateInstanceId'
+        @result = @sut._buildMeshblutoNodeMap flow, instanceMap
+
+      it 'should send back a map linking the device to the uuid and alias', ->
+        expect(@result['device-uuid']).to.deep.contain.same.members [
+          {nodeId: 'device-instance-1-uuid', alias: 'some-device-alias'}
+        ]
+
   describe '-> _legacyConversion', ->
     beforeEach ->
       dependencies =

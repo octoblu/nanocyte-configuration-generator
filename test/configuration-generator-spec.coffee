@@ -110,7 +110,7 @@ describe 'ConfigurationGenerator', ->
 
       it 'should call request.get', ->
         expect(@request.get).to.have.been.calledWith(
-          'https://raw.githubusercontent.com/octoblu/nanocyte-node-registry/master/registry.json'
+          'https://s3-us-west-2.amazonaws.com/nanocyte-registry/latest/registry.json'
           json: true
         )
 

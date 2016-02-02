@@ -176,13 +176,13 @@ describe 'ConfigurationGenerator', ->
 
 
       it 'should set the uuid and token of meshblu-output and merge meshbluJSON', ->
-        expect(@flowConfig['engine-output'].config).to.deep.equal
+        expect(@flowConfig['engine-output'].config).containSubset
           uuid: sampleFlow.flowId
           token: 'some-token'
           server: 'some-server'
 
       it 'should set engine-debug', ->
-        expect(@flowConfig['engine-debug'].config).to.deep.equal
+        expect(@flowConfig['engine-debug'].config).containSubset
           'node-debug-instance':
             nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           'node-component-unregister-instance':
@@ -203,7 +203,7 @@ describe 'ConfigurationGenerator', ->
             nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
 
       it 'should set engine-data', ->
-        expect(@flowConfig['engine-data'].config).to.deep.equal
+        expect(@flowConfig['engine-data'].config).containSubset
           'node-debug-instance':
             nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           'node-component-unregister-instance':
@@ -224,7 +224,7 @@ describe 'ConfigurationGenerator', ->
             nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
 
       it 'should set engine-pulse', ->
-        expect(@flowConfig['engine-pulse'].config).to.deep.equal
+        expect(@flowConfig['engine-pulse'].config).containSubset
           'node-debug-instance':
             nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           'node-component-unregister-instance':
@@ -245,7 +245,7 @@ describe 'ConfigurationGenerator', ->
             nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
 
       it 'should set engine-input', ->
-        expect(@flowConfig['engine-input'].config).to.deep.equal
+        expect(@flowConfig['engine-input'].config).containSubset
           '37f0a74a-2f17-11e4-9617-a6c5e4d22fb7':
             [{nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'}]
           '37f0a966-2f17-11e4-9617-a6c5e4d22fb7':
@@ -254,13 +254,13 @@ describe 'ConfigurationGenerator', ->
             [{nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'}]
 
       it 'should set subscribe-devices', ->
-        expect(@flowConfig['subscribe-devices'].config).to.deep.equal
+        expect(@flowConfig['subscribe-devices'].config).containSubset
           'broadcast': [
             'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
           ]
 
       it 'should set node-flow-metric-instance', ->
-        expect(@flowConfig['node-flow-metric-instance'].config).to.deep.equal
+        expect(@flowConfig['node-flow-metric-instance'].config).containSubset
           id: '000000-fake-metric-uuid-9999'
           category: 'flow-metrics'
           deviceId: 'f952aacb-5156-4072-bcae-f830334376b1'
@@ -270,7 +270,7 @@ describe 'ConfigurationGenerator', ->
             nonce: 'i-am-a-nonce'
 
       it 'should set node-get-key-instance', ->
-        expect(@flowConfig['node-get-key-instance'].config).to.deep.equal
+        expect(@flowConfig['node-get-key-instance'].config).containSubset
           id: '40842d14-a536-4d07-9174-fc463c53a5a7'
           bodyEncoding: 'json'
           category: "operation"
@@ -289,7 +289,7 @@ describe 'ConfigurationGenerator', ->
           url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-set-key-instance', ->
-        expect(@flowConfig['node-set-key-instance'].config).to.deep.equal
+        expect(@flowConfig['node-set-key-instance'].config).containSubset
           id: '2528d3e8-6993-4184-8049-9c4025a57145'
           bodyEncoding: 'json'
           category: "operation"
@@ -310,7 +310,7 @@ describe 'ConfigurationGenerator', ->
           url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-trigger-instance', ->
-        expect(@flowConfig['node-trigger-instance'].config).to.deep.equal {
+        expect(@flowConfig['node-trigger-instance'].config).containSubset {
           "id": "8a8da890-55d6-11e5-bd83-1349dc09f6d6",
           "resourceType": "flow-node",
           "payloadType": "date",
@@ -352,7 +352,7 @@ describe 'ConfigurationGenerator', ->
             linkedTo: []
             type: 'node-component-unregister'
 
-        expect(@flowStopConfig.router.config).to.deep.equal links
+        expect(@flowStopConfig.router.config).containSubset links
 
       it 'should set the flow links on the router', ->
         links =
@@ -411,17 +411,17 @@ describe 'ConfigurationGenerator', ->
             linkedTo: []
             type: 'node-component-unregister'
 
-        expect(@flowConfig.router.config).to.deep.equal links
+        expect(@flowConfig.router.config).containSubset links
 
       it 'should configure the debug node with the proper config', ->
         origNodeConfig = _.findWhere sampleFlow.nodes, id: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
-        expect(@flowConfig['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'].config).to.deep.equal origNodeConfig
+        expect(@flowConfig['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'].config).containSubset origNodeConfig
 
       it 'should configure the debug node with default data', ->
-        expect(@flowConfig['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'].data).to.deep.equal {}
+        expect(@flowConfig['8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'].data).containSubset {}
 
       it 'should set node-channel-instance', ->
-        expect(@flowConfig['node-channel-instance'].config).to.deep.equal {
+        expect(@flowConfig['node-channel-instance'].config).containSubset {
           "id": "9d8e9920-663b-11e5-82a3-c3248b467ade",
           "channelApiMatch": require './data/github-channel.json'
           "resourceType": "flow-node",
@@ -566,7 +566,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when a different node is linked to another', ->
       beforeEach ->
@@ -622,7 +622,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when one node is linked to two nodes', ->
       beforeEach ->
@@ -698,7 +698,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when two nodes are linked to two nodes', ->
       beforeEach ->
@@ -793,7 +793,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when one node is linked to a virtual node', ->
       beforeEach ->
@@ -834,7 +834,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when debug is set to true', ->
       beforeEach ->
@@ -875,7 +875,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when linkedToOutput', ->
       beforeEach ->
@@ -916,7 +916,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when linkedToPulse', ->
       beforeEach ->
@@ -957,7 +957,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when linkedToData', ->
       beforeEach ->
@@ -1002,7 +1002,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when linkedToNext', ->
       beforeEach ->
@@ -1109,7 +1109,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
     describe 'when linkedToStart and linkedToStop', ->
       beforeEach ->
@@ -1193,7 +1193,7 @@ describe 'ConfigurationGenerator', ->
             type: 'engine-pulse'
             linkedTo: []
 
-        expect(@result).to.deep.equal links
+        expect(@result).containSubset links
 
   describe '-> _buildNodeMap', ->
     beforeEach ->
@@ -1239,7 +1239,7 @@ describe 'ConfigurationGenerator', ->
             nodeId: 'some-node-uuid'
           'some-other-node-instance-uuid':
             nodeId: 'some-other-node-uuid'
-        expect(@result).to.deep.equal nodeMap
+        expect(@result).containSubset nodeMap
 
   describe '-> _buildMeshblutoNodeMap', ->
     describe 'when two of the same input node', ->
@@ -1309,7 +1309,7 @@ describe 'ConfigurationGenerator', ->
           interval: 1000
 
       it 'should convert interval to timeout', ->
-        expect(@result).to.deep.equal(
+        expect(@result).containSubset(
           type: 'operation:debounce', timeout: 1000
         )
 
@@ -1320,7 +1320,7 @@ describe 'ConfigurationGenerator', ->
           interval: 9000
 
       it 'should convert interval to timeout', ->
-        expect(@result).to.deep.equal(
+        expect(@result).containSubset(
           type: 'operation:debounce', timeout: 9000
         )
 
@@ -1332,7 +1332,7 @@ describe 'ConfigurationGenerator', ->
           randomProperty: 'wow'
 
       it 'should convert interval to timeout', ->
-        expect(@result).to.deep.equal(
+        expect(@result).containSubset(
           type: 'operation:debounce', timeout: 9000, randomProperty: 'wow'
         )
 
@@ -1343,7 +1343,7 @@ describe 'ConfigurationGenerator', ->
           interval: 18
 
       it 'should convert interval to repeat', ->
-        expect(@result).to.deep.equal(
+        expect(@result).containSubset(
           type: 'operation:throttle', repeat: 18
         )
 
@@ -1354,7 +1354,7 @@ describe 'ConfigurationGenerator', ->
           interval: 999
 
       it 'should convert interval to repeat', ->
-        expect(@result).to.deep.equal(
+        expect(@result).containSubset(
           type: 'operation:throttle', repeat: 999
         )
 
@@ -1365,6 +1365,6 @@ describe 'ConfigurationGenerator', ->
           interval: 'whatevs'
 
       it 'should convert interval to repeat', ->
-        expect(@result).to.deep.equal(
+        expect(@result).containSubset(
           type: 'operation:eject!', interval: 'whatevs'
         )

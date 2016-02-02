@@ -86,7 +86,7 @@ class ConfigurationGenerator
           {config,data} = flowConfig[instanceConfig.nodeUuid]
 
           config = @_legacyConversion _.cloneDeep config # prevent accidental mutation
-
+          config.templateOriginalMessage = instanceConfig.templateOriginalMessage
           getSetConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
 
           channelApiMatch = @channelConfig.get config.type
@@ -218,6 +218,7 @@ class ConfigurationGenerator
       result[instanceId] =
         type: config.type
         linkedTo: linkedTo
+        linkedToNext: config.linkedToNext
 
       result[instanceId].transactionGroupId = config.transactionGroupId if config.transactionGroupId?
 

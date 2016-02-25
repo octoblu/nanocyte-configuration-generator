@@ -1,18 +1,9 @@
 module.exports = {
-  "nothing":
-    "composedOf":
-      "nothing":
-        "type": "nanocyte-node-nothing"
-        "linkedToPrev": true
-        "linkedToNext": true
   "trigger":
     "composedOf":
-      "input-nanocyte":
-        "type": "trigger-input"
-        "linkedToPrev": true
-        "linkedTo": ['output-nanocyte']
-      "output-nanocyte":
-        "type": "trigger-output"
+      "Trigger":
+        "type": "nanocyte-node-trigger"
+        "linkedToInput": true
         "linkedToNext": true
   "debug":
     "composedOf":
@@ -56,22 +47,6 @@ module.exports = {
     "composedOf":
       "http-formatter":
         "type": "nanocyte-component-http-formatter"
-        "linkedToPrev": true
-        "linkedToNext": true
-  "equal":
-    "composedOf":      
-      "input-nanocyte":
-        "type": "equals-input"
-        "linkedToPrev": true
-        "linkedTo": ['output-nanocyte']
-      "output-nanocyte":
-        "type": "equals-output"
-        "linkedToNext": true
-
-  "not-equal":
-    "composedOf":
-      "not-equal-something":
-        "type": "not-equals-input"
         "linkedToPrev": true
         "linkedToNext": true
 

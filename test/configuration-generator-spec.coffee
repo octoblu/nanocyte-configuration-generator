@@ -39,15 +39,17 @@ describe 'ConfigurationGenerator', ->
         @channelConfig.fetch.yields null
         @channelConfig.get.withArgs('channel:github').returns githubConfig
         @sut._generateFlowMetricId.onCall(0).returns '000000-fake-metric-uuid-9999'
-        @sut._generateInstanceId.onCall(0).returns 'node-trigger-instance'
-        @sut._generateInstanceId.onCall(1).returns 'node-debug-instance'
-        @sut._generateInstanceId.onCall(2).returns 'node-interval-instance'
-        @sut._generateInstanceId.onCall(3).returns 'node-device-instance'
-        @sut._generateInstanceId.onCall(4).returns 'node-channel-instance'
-        @sut._generateInstanceId.onCall(5).returns 'node-component-unregister-instance'
-        @sut._generateInstanceId.onCall(6).returns 'node-get-key-instance'
-        @sut._generateInstanceId.onCall(7).returns 'node-set-key-instance'
-        @sut._generateInstanceId.onCall(8).returns 'node-flow-metric-instance'
+
+        @sut._generateInstanceId.onCall(0).returns 'maybe-the-debug-node'
+        @sut._generateInstanceId.onCall(1).returns 'node-trigger-instance'
+        @sut._generateInstanceId.onCall(2).returns 'node-debug-instance'
+        @sut._generateInstanceId.onCall(3).returns 'node-interval-instance'
+        @sut._generateInstanceId.onCall(4).returns 'node-device-instance'
+        @sut._generateInstanceId.onCall(5).returns 'node-channel-instance'
+        @sut._generateInstanceId.onCall(6).returns 'node-component-unregister-instance'
+        @sut._generateInstanceId.onCall(7).returns 'node-get-key-instance'
+        @sut._generateInstanceId.onCall(8).returns 'node-set-key-instance'
+        @sut._generateInstanceId.onCall(9).returns 'node-flow-metric-instance'
 
         options =
           flowData: sampleFlow
@@ -66,7 +68,7 @@ describe 'ConfigurationGenerator', ->
         )
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
-        expect(_.keys @flowConfig).to.have.deep.same.members [
+        expect(_.keys @flowConfig).to.contain.deep.members [
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
@@ -96,7 +98,7 @@ describe 'ConfigurationGenerator', ->
         ]
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
-        expect(_.keys @flowStopConfig).to.have.deep.same.members [
+        expect(_.keys @flowStopConfig).to.contain.deep.members [
           '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
           '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
           '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
@@ -133,76 +135,51 @@ describe 'ConfigurationGenerator', ->
           server: 'some-server'
 
       it 'should set engine-debug', ->
-        expect(@flowConfig['engine-debug'].config).containSubset
-          'node-debug-instance':
-            nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
-          'node-component-unregister-instance':
-            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
-          'node-interval-instance':
-            nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
-          'node-trigger-instance':
-            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
-          'node-device-instance':
-            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
-          'node-channel-instance':
-            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
-          'node-flow-metric-instance':
-            nodeId: '000000-fake-metric-uuid-9999'
-          'node-get-key-instance':
-            nodeId: '40842d14-a536-4d07-9174-fc463c53a5a7'
-          'node-set-key-instance':
-            nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
+
+        expect(_.keys(@flowConfig['engine-debug'].config)).contain.members [
+          'node-debug-instance'
+          'node-component-unregister-instance'
+          'node-interval-instance'
+          'node-trigger-instance'
+          'node-device-instance'
+          'node-channel-instance'
+          'node-flow-metric-instance'
+          'node-get-key-instance'
+          'node-set-key-instance'
+        ]
 
       it 'should set engine-data', ->
-        expect(@flowConfig['engine-data'].config).containSubset
-          'node-debug-instance':
-            nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
-          'node-component-unregister-instance':
-            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
-          'node-interval-instance':
-            nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
-          'node-trigger-instance':
-            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
-          'node-device-instance':
-            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
-          'node-channel-instance':
-            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
-          'node-flow-metric-instance':
-            nodeId: '000000-fake-metric-uuid-9999'
-          'node-get-key-instance':
-            nodeId: '40842d14-a536-4d07-9174-fc463c53a5a7'
-          'node-set-key-instance':
-            nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
+        expect(_.keys(@flowConfig['engine-data'].config)).contain.members [
+          'node-debug-instance'
+          'node-component-unregister-instance'
+          'node-interval-instance'
+          'node-trigger-instance'
+          'node-device-instance'
+          'node-channel-instance'
+          'node-flow-metric-instance'
+          'node-get-key-instance'
+          'node-set-key-instance'
+        ]
 
       it 'should set engine-pulse', ->
-        expect(@flowConfig['engine-pulse'].config).containSubset
-          'node-debug-instance':
-            nodeId: '8e74a6c0-55d6-11e5-bd83-1349dc09f6d6'
-          'node-component-unregister-instance':
-            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
-          'node-interval-instance':
-            nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'
-          'node-trigger-instance':
-            nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'
-          'node-device-instance':
-            nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'
-          'node-channel-instance':
-            nodeId: '9d8e9920-663b-11e5-82a3-c3248b467ade'
-          'node-flow-metric-instance':
-            nodeId: '000000-fake-metric-uuid-9999'
-          'node-get-key-instance':
-            nodeId: '40842d14-a536-4d07-9174-fc463c53a5a7'
-          'node-set-key-instance':
-            nodeId: '2528d3e8-6993-4184-8049-9c4025a57145'
+        expect(_.keys @flowConfig['engine-pulse'].config).contain.members [
+          'node-debug-instance'
+          'node-component-unregister-instance'
+          'node-interval-instance'
+          'node-trigger-instance'
+          'node-device-instance'
+          'node-channel-instance'
+          'node-flow-metric-instance'
+          'node-get-key-instance'
+          'node-set-key-instance'
+        ]
 
       it 'should set engine-input', ->
-        expect(@flowConfig['engine-input'].config).containSubset
-          '37f0a74a-2f17-11e4-9617-a6c5e4d22fb7':
-            [{nodeId: '8a8da890-55d6-11e5-bd83-1349dc09f6d6'}]
-          '37f0a966-2f17-11e4-9617-a6c5e4d22fb7':
-            [{nodeId: '2cf457d0-57eb-11e5-99ea-11ac2aafbb8d'}]
-          'c0e0955e-6ab4-4182-8d56-1c8c35a5106d':
-            [{nodeId: 'f607eed0-631b-11e5-9887-75e2edd7c9c8'}]
+        expect(_.keys @flowConfig['engine-input'].config).contain.members [
+          '37f0a74a-2f17-11e4-9617-a6c5e4d22fb7'
+          '37f0a966-2f17-11e4-9617-a6c5e4d22fb7'
+          'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
+          ]
 
       it 'should set subscribe-devices', ->
         expect(@flowConfig['subscribe-devices'].config).containSubset
@@ -261,7 +238,8 @@ describe 'ConfigurationGenerator', ->
           url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-trigger-instance', ->
-        expect(@flowConfig['node-trigger-instance'].config).containSubset {
+        nodeConfigs = _.map @flowConfig, (node) => return node.config
+        expect(nodeConfigs).contain {
           "id": "8a8da890-55d6-11e5-bd83-1349dc09f6d6",
           "resourceType": "flow-node",
           "payloadType": "date",

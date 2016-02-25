@@ -169,7 +169,6 @@ class ConfigurationGenerator
   _addDebug: (composedOf) =>
     composedOf = @_addInputDebug composedOf
     composedOf = @_addOutputDebug composedOf
-    console.log JSON.stringify composedOf, null, 2
     return composedOf
 
   _addInputDebug: (composedOf) =>

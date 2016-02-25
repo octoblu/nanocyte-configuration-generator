@@ -146,10 +146,12 @@ class ConfigurationGenerator
       type = config.type.replace('operation:', '') if type == 'operation'
       nodeFromRegistry = nodeRegistry[type] ? {}
 
-      composedOf = nodeFromRegistry.composedOf ? {}
+      composedOf = _.cloneDeep(nodeFromRegistry.composedOf) ? {}
 
       linkedToData = _.detect composedOf, (value, key) =>
         value.linkedToData == true
+
+      composedOf = @_addDebug(composedOf) if config.debug?
 
       transactionGroupId = @_generateTransactionGroupId() if linkedToData?
 
@@ -158,12 +160,35 @@ class ConfigurationGenerator
         composedConfig = _.cloneDeep template
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId
-        composedConfig.debug = config.debug
         composedConfig.transactionGroupId = transactionGroupId if linkedToData?
 
         instanceMap[instanceId] = composedConfig
 
     return instanceMap
+
+  _addDebug: (composedOf) =>
+    composedOf = @_addInputDebug composedOf
+    composedOf = @_addOutputDebug composedOf
+    console.log JSON.stringify composedOf, null, 2
+    return composedOf
+
+  _addInputDebug: (composedOf) =>
+    composedOf = _.cloneDeep composedOf
+
+    debugInput =
+      type: "nanocyte-component-pass-through"
+      debug: true
+      linkedTo: []
+      linkedToPrev: true
+
+    composedOf['debug-input'] = debugInput
+
+    composedOf
+
+  _addOutputDebug: (composedOf) =>
+    _.mapValues composedOf, (node) =>
+      node.debug = true if node.linkedToNext
+      node
 
   _getNodeRegistry: (callback) =>
     @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>

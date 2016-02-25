@@ -59,7 +59,7 @@ module.exports = {
         "linkedToPrev": true
         "linkedToNext": true
   "equal":
-    "composedOf":
+    "composedOf":      
       "input-nanocyte":
         "type": "equals-input"
         "linkedToPrev": true

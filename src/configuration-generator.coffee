@@ -203,6 +203,7 @@ class ConfigurationGenerator
         linkUuids = _.pluck nodeLinks, 'to'
         _.each instanceMap, (data, key) =>
           if _.contains linkUuids, data.nodeUuid
+            # return if data.debug
             linkedTo.push key if data.linkedToPrev
 
       _.each config.linkedTo, (templateLinkId) =>

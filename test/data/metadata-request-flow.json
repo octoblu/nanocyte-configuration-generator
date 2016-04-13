@@ -1,12 +1,12 @@
 {
-  "flowId": "ce7dd16b-dd71-425a-82d1-06915662c591",
-  "token": "c220f59cba7acc81c14d0ed0c9b8a4805138a0d6",
-  "name": "Flow-Metadata-tester",
+  "flowId": "25b18358-3153-4793-a5c2-0954fc35f9f5",
+  "token": "69676592d275cba224bdfe53120be783edbe139d",
+  "name": "Flow 25b18358",
   "description": null,
-  "hash": "3ef06f64",
+  "hash": "efa2f69c",
   "nodes": [
     {
-      "id": "09bc3db0-01c7-11e6-bcf2-7b0a87a2a7e1",
+      "id": "fc8bbb20-01d0-11e6-ab26-f189ad0e753f",
       "resourceType": "flow-node",
       "payloadType": "date",
       "once": false,
@@ -27,235 +27,26 @@
         "name": "nanocyte-node-trigger"
       },
       "logo": "https://ds78apnml6was.cloudfront.net/operation/trigger.svg",
+      "$$hashKey": "object:1165",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 288.77734375,
-      "y": 760.5226440429688,
-      "needsConfiguration": false,
-      "needsSetup": false
+      "x": 184.46705627441406,
+      "y": 381.7610778808594
     },
     {
-      "id": "f9804cb0-01cc-11e6-af13-ad1cc91cb3af",
+      "id": "ff538db0-01d0-11e6-ab26-f189ad0e753f",
       "resourceType": "flow-node",
-      "type": "vampire",
+      "name": "gimme-metadata",
       "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
-      "name": "vampires-hate-flow-metadata",
-      "is-a-vampire": true,
-      "drinks-blood": "for-business-and-pleasure",
       "meshblu": {
-        "version": "2.0.0",
-        "whitelists": {
-          "broadcast": {
-            "as": {
-              "*": {}
-            },
-            "received": {
-              "*": {}
-            },
-            "sent": {
-              "*": {}
-            }
-          },
-          "discover": {
-            "as": {
-              "*": {}
-            },
-            "view": {
-              "*": {}
-            }
-          },
-          "configure": {
-            "as": {
-              "*": {}
-            },
-            "received": {
-              "*": {}
-            },
-            "sent": {
-              "*": {}
-            },
-            "update": {
-              "*": {}
-            }
-          },
-          "message": {
-            "as": {
-              "*": {}
-            },
-            "from": {
-              "*": {}
-            },
-            "received": {
-              "*": {}
-            },
-            "sent": {
-              "*": {}
-            }
-          }
-        },
-        "createdAt": "2016-04-13T23:09:41+00:00",
-        "hash": "Md9HL0SHAR3GG9JzijPFBx++Hi/RFV8ssjwCCp0VmQ8="
+        "createdAt": "2016-04-13T23:39:09+00:00",
+        "hash": "YyDROLdbh4s0y9a90h2uuLfdlyge4Ik8ZESLngJceSc="
       },
-      "uuid": "no-metadata-plz",
-      "online": false,
-      "category": "device",
-      "staticMessage": {},
-      "useStaticMessage": true,
-      "nodeType": {},
-      "class": "vampire",
-      "defaults": {
-        "type": "vampire",
-        "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
-        "name": "vampires-hate-flow-metadata",
-        "is-a-vampire": true,
-        "drinks-blood": "for-business-and-pleasure",
-        "meshblu": {
-          "version": "2.0.0",
-          "whitelists": {
-            "broadcast": {
-              "as": {
-                "*": {}
-              },
-              "received": {
-                "*": {}
-              },
-              "sent": {
-                "*": {}
-              }
-            },
-            "discover": {
-              "as": {
-                "*": {}
-              },
-              "view": {
-                "*": {}
-              }
-            },
-            "configure": {
-              "as": {
-                "*": {}
-              },
-              "received": {
-                "*": {}
-              },
-              "sent": {
-                "*": {}
-              },
-              "update": {
-                "*": {}
-              }
-            },
-            "message": {
-              "as": {
-                "*": {}
-              },
-              "from": {
-                "*": {}
-              },
-              "received": {
-                "*": {}
-              },
-              "sent": {
-                "*": {}
-              }
-            }
-          },
-          "createdAt": "2016-04-13T23:09:41+00:00",
-          "hash": "Md9HL0SHAR3GG9JzijPFBx++Hi/RFV8ssjwCCp0VmQ8="
-        },
-        "uuid": "no-metadata-plz",
-        "online": false,
-        "token": "$2a$08$GIwTc5Jg0c0LdBDLyskoQOxxdHSQNq5fM7u45NhmNclgpum4Je.0O",
-        "category": "device",
-        "staticMessage": {},
-        "useStaticMessage": true,
-        "nodeType": {}
-      },
-      "input": 1,
-      "output": 1,
-      "formTemplatePath": "/pages/node_forms/device_form.html",
-      "logo": "https://ds78apnml6was.cloudfront.net/vampire.svg",
-      "$$hashKey": "object:148",
-      "inputLocations": [],
-      "outputLocations": [],
-      "x": 451.3467102050781,
-      "y": 707.5821533203125
-    },
-    {
-      "id": "3423be60-01cd-11e6-af13-ad1cc91cb3af",
-      "resourceType": "flow-node",
-      "type": "vampire",
-      "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
-      "name": "humans-love-flow-metadata",
-      "octoblu": {
-        "flow": {
-          "forwardMetadata": true
-        }
-      },
-      "is-a-vampire": true,
-      "drinks-blood": "for-business-and-pleasure",
-      "meshblu": {
-        "version": "2.0.0",
-        "whitelists": {
-          "broadcast": {
-            "as": {
-              "*": {}
-            },
-            "received": {
-              "*": {}
-            },
-            "sent": {
-              "*": {}
-            }
-          },
-          "discover": {
-            "as": {
-              "*": {}
-            },
-            "view": {
-              "*": {}
-            }
-          },
-          "configure": {
-            "as": {
-              "*": {}
-            },
-            "received": {
-              "*": {}
-            },
-            "sent": {
-              "*": {}
-            },
-            "update": {
-              "*": {}
-            }
-          },
-          "message": {
-            "as": {
-              "*": {}
-            },
-            "from": {
-              "*": {}
-            },
-            "received": {
-              "*": {}
-            },
-            "sent": {
-              "*": {}
-            }
-          }
-        },
-        "createdAt": "2016-04-13T23:09:36+00:00",
-        "hash": "3KzWMh4ogRCb46Q1WdtQQYwNGBuXbRyifl/vq8hnx0s=",
-        "updatedAt": "2016-04-13T23:10:44+00:00"
-      },
-      "uuid": "i-love-metadata",
-      "online": false,
       "discoverWhitelist": [
-        "*"
+        "a75c1410-63a1-4335-83c7-dfb36323aa56"
       ],
       "configureWhitelist": [
-        "*"
+        "a75c1410-63a1-4335-83c7-dfb36323aa56"
       ],
       "sendWhitelist": [
         "*"
@@ -263,85 +54,26 @@
       "receiveWhitelist": [
         "*"
       ],
+      "uuid": "gimme-metadata",
+      "online": false,
+      "token": "$2a$08$4ckMSxD26gj3pSznyk01Euu2qetmqeb9vhSrHL9bioSJjH9NUHzQa",
       "category": "device",
       "staticMessage": {},
       "useStaticMessage": true,
       "nodeType": {},
-      "class": "vampire",
+      "class": "",
       "defaults": {
-        "type": "vampire",
+        "name": "gimme-metadata",
         "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
-        "name": "humans-love-flow-metadata",
-        "octoblu": {
-          "flow": {
-            "forwardMetadata": true
-          }
-        },
-        "is-a-vampire": true,
-        "drinks-blood": "for-business-and-pleasure",
         "meshblu": {
-          "version": "2.0.0",
-          "whitelists": {
-            "broadcast": {
-              "as": {
-                "*": {}
-              },
-              "received": {
-                "*": {}
-              },
-              "sent": {
-                "*": {}
-              }
-            },
-            "discover": {
-              "as": {
-                "*": {}
-              },
-              "view": {
-                "*": {}
-              }
-            },
-            "configure": {
-              "as": {
-                "*": {}
-              },
-              "received": {
-                "*": {}
-              },
-              "sent": {
-                "*": {}
-              },
-              "update": {
-                "*": {}
-              }
-            },
-            "message": {
-              "as": {
-                "*": {}
-              },
-              "from": {
-                "*": {}
-              },
-              "received": {
-                "*": {}
-              },
-              "sent": {
-                "*": {}
-              }
-            }
-          },
-          "createdAt": "2016-04-13T23:09:36+00:00",
-          "hash": "3KzWMh4ogRCb46Q1WdtQQYwNGBuXbRyifl/vq8hnx0s=",
-          "updatedAt": "2016-04-13T23:10:44+00:00"
+          "createdAt": "2016-04-13T23:39:09+00:00",
+          "hash": "YyDROLdbh4s0y9a90h2uuLfdlyge4Ik8ZESLngJceSc="
         },
-        "uuid": "i-love-metadata",
-        "online": false,
-        "token": "$2a$08$/fzGJZwjmBEcR/4Cx3zxQ.K6nrH8LbiwUTTgmxJ7WtH8GeqLerenG",
         "discoverWhitelist": [
-          "*"
+          "a75c1410-63a1-4335-83c7-dfb36323aa56"
         ],
         "configureWhitelist": [
-          "*"
+          "a75c1410-63a1-4335-83c7-dfb36323aa56"
         ],
         "sendWhitelist": [
           "*"
@@ -349,6 +81,9 @@
         "receiveWhitelist": [
           "*"
         ],
+        "uuid": "gimme-metadata",
+        "online": false,
+        "token": "$2a$08$4ckMSxD26gj3pSznyk01Euu2qetmqeb9vhSrHL9bioSJjH9NUHzQa",
         "category": "device",
         "staticMessage": {},
         "useStaticMessage": true,
@@ -357,29 +92,154 @@
       "input": 1,
       "output": 1,
       "formTemplatePath": "/pages/node_forms/device_form.html",
-      "logo": "https://ds78apnml6was.cloudfront.net/vampire.svg",
-      "$$hashKey": "object:149",
       "inputLocations": [],
       "outputLocations": [],
-      "x": 454.15771484375,
-      "y": 844.384033203125
+      "x": 347.0364074707031,
+      "y": 312.8916320800781
+    },
+    {
+      "id": "0420cd30-01d1-11e6-ab26-f189ad0e753f",
+      "resourceType": "flow-node",
+      "name": "no-metadata-plz",
+      "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
+      "meshblu": {
+        "createdAt": "2016-04-13T23:39:25+00:00",
+        "hash": "zQkqluR7kUg+WIEMMaAsMNxRw4G/vURJSw2C676DuKk="
+      },
+      "discoverWhitelist": [
+        "a75c1410-63a1-4335-83c7-dfb36323aa56"
+      ],
+      "configureWhitelist": [
+        "a75c1410-63a1-4335-83c7-dfb36323aa56"
+      ],
+      "sendWhitelist": [
+        "*"
+      ],
+      "receiveWhitelist": [
+        "*"
+      ],
+      "uuid": "no-metadata-plz",
+      "online": false,
+      "token": "$2a$08$pQ0NYXt91mdY20VOVNo4TecL5NVVOqC8/OV4SkjmM62dEjE.j2NNu",
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {},
+      "class": "",
+      "defaults": {
+        "name": "no-metadata-plz",
+        "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
+        "meshblu": {
+          "createdAt": "2016-04-13T23:39:25+00:00",
+          "hash": "zQkqluR7kUg+WIEMMaAsMNxRw4G/vURJSw2C676DuKk="
+        },
+        "discoverWhitelist": [
+          "a75c1410-63a1-4335-83c7-dfb36323aa56"
+        ],
+        "configureWhitelist": [
+          "a75c1410-63a1-4335-83c7-dfb36323aa56"
+        ],
+        "sendWhitelist": [
+          "*"
+        ],
+        "receiveWhitelist": [
+          "*"
+        ],
+        "uuid": "no-metadata-plz",
+        "online": false,
+        "token": "$2a$08$pQ0NYXt91mdY20VOVNo4TecL5NVVOqC8/OV4SkjmM62dEjE.j2NNu",
+        "category": "device",
+        "staticMessage": {},
+        "useStaticMessage": true,
+        "nodeType": {}
+      },
+      "input": 1,
+      "output": 1,
+      "formTemplatePath": "/pages/node_forms/device_form.html",
+      "inputLocations": [],
+      "outputLocations": [],
+      "x": 345.16241455078125,
+      "y": 446.88250732421875
     }
   ],
   "links": [
     {
-      "from": "09bc3db0-01c7-11e6-bcf2-7b0a87a2a7e1",
+      "from": "fc8bbb20-01d0-11e6-ab26-f189ad0e753f",
       "fromPort": 0,
-      "to": "f9804cb0-01cc-11e6-af13-ad1cc91cb3af",
+      "to": "ff538db0-01d0-11e6-ab26-f189ad0e753f",
       "toPort": 0
     },
     {
-      "from": "09bc3db0-01c7-11e6-bcf2-7b0a87a2a7e1",
+      "from": "fc8bbb20-01d0-11e6-ab26-f189ad0e753f",
       "fromPort": 0,
-      "to": "3423be60-01cd-11e6-af13-ad1cc91cb3af",
+      "to": "0420cd30-01d1-11e6-ab26-f189ad0e753f",
       "toPort": 0
     }
   ],
   "deployed": false,
-  "selectedLink": null,
-  "selectedFlowNode": null
+  "selectedFlowNode": {
+    "id": "ff538db0-01d0-11e6-ab26-f189ad0e753f",
+    "resourceType": "flow-node",
+    "name": "gimme-metadata",
+    "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
+    "meshblu": {
+      "createdAt": "2016-04-13T23:39:09+00:00",
+      "hash": "YyDROLdbh4s0y9a90h2uuLfdlyge4Ik8ZESLngJceSc="
+    },
+    "discoverWhitelist": [
+      "a75c1410-63a1-4335-83c7-dfb36323aa56"
+    ],
+    "configureWhitelist": [
+      "a75c1410-63a1-4335-83c7-dfb36323aa56"
+    ],
+    "sendWhitelist": [
+      "*"
+    ],
+    "receiveWhitelist": [
+      "*"
+    ],
+    "uuid": "gimme-metadata",
+    "online": false,
+    "token": "$2a$08$4ckMSxD26gj3pSznyk01Euu2qetmqeb9vhSrHL9bioSJjH9NUHzQa",
+    "category": "device",
+    "staticMessage": {},
+    "useStaticMessage": true,
+    "nodeType": {},
+    "class": "",
+    "defaults": {
+      "name": "gimme-metadata",
+      "owner": "a75c1410-63a1-4335-83c7-dfb36323aa56",
+      "meshblu": {
+        "createdAt": "2016-04-13T23:39:09+00:00",
+        "hash": "YyDROLdbh4s0y9a90h2uuLfdlyge4Ik8ZESLngJceSc="
+      },
+      "discoverWhitelist": [
+        "a75c1410-63a1-4335-83c7-dfb36323aa56"
+      ],
+      "configureWhitelist": [
+        "a75c1410-63a1-4335-83c7-dfb36323aa56"
+      ],
+      "sendWhitelist": [
+        "*"
+      ],
+      "receiveWhitelist": [
+        "*"
+      ],
+      "uuid": "gimme-metadata",
+      "online": false,
+      "token": "$2a$08$4ckMSxD26gj3pSznyk01Euu2qetmqeb9vhSrHL9bioSJjH9NUHzQa",
+      "category": "device",
+      "staticMessage": {},
+      "useStaticMessage": true,
+      "nodeType": {}
+    },
+    "input": 1,
+    "output": 1,
+    "formTemplatePath": "/pages/node_forms/device_form.html",
+    "inputLocations": [],
+    "outputLocations": [],
+    "x": 347.0364074707031,
+    "y": 312.8916320800781
+  },
+  "selectedLink": null
 }

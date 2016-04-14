@@ -30,6 +30,7 @@
     "istanbul": "^0.3.20",
     "mocha": "^2.3.3",
     "mocha-istanbul": "^0.2.0",
+    "shmock": "^0.8.1",
     "sinon": "^1.16.1",
     "sinon-chai": "^2.8.0"
   },
@@ -37,6 +38,7 @@
     "debug": "^2.2.0",
     "jsonfile": "^2.2.2",
     "lodash": "^3.10.1",
+    "meshblu-http": "^5.3.0",
     "node-uuid": "^1.4.3",
     "request": "^2.63.0",
     "s3": "^4.4.0"

@@ -24,7 +24,7 @@
 	}, {
 		"id": "ff538db0-01d0-11e6-ab26-f189ad0e753f",
 		"resourceType": "flow-node",
-		"uuid": "gimme-metadata",
+		"uuid": "new-channel-as-device-overlord",
 		"category": "device",
 		"input": 1,
 		"output": 1,
@@ -33,7 +33,16 @@
 	}, {
 		"id": "0420cd30-01d1-11e6-ab26-f189ad0e753f",
 		"resourceType": "flow-node",
-		"uuid": "no-metadata-plz",
+		"uuid": "metadata-luddite",
+		"category": "device",
+		"input": 1,
+		"output": 1,
+		"x": 345.16241455078125,
+		"y": 446.88250732421875
+	}, {
+		"id": "bruce-willis",
+		"resourceType": "flow-node",
+		"uuid": "fifth-element",
 		"category": "device",
 		"input": 1,
 		"output": 1,
@@ -46,5 +55,8 @@
 	}, {
 		"from": "fc8bbb20-01d0-11e6-ab26-f189ad0e753f",
 		"to": "0420cd30-01d1-11e6-ab26-f189ad0e753f"
+	}, {
+		"from": "fc8bbb20-01d0-11e6-ab26-f189ad0e753f",
+		"to": "bruce-willis"
 	}]
 }

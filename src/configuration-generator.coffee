@@ -103,18 +103,24 @@ class ConfigurationGenerator
         flowConfig['engine-pulse'].config = @_buildNodeMap instanceMap
         flowConfig['engine-debug'].config = @_buildNodeMap instanceMap
         flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
-        flowConfig['engine-output'].config = _.extend {}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
         flowConfig['subscribe-devices'].config = @_getSubscribeDevices flowNodes
 
-        flowStopConfig = _.cloneDeep flowConfig
+        @_buildEngineOutputConfig {flowData, flowToken}, (error, config) =>
+          flowConfig['engine-output'].config = config
 
-        engineStopLinks = flowConfig['router']['config']['engine-stop']?.linkedTo
-        engineStopLinks ?= []
+          flowStopConfig = _.cloneDeep flowConfig
 
-        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
-        flowStopConfig['router']['config'] = stopRouterConfig
+          engineStopLinks = flowConfig['router']['config']['engine-stop']?.linkedTo
+          engineStopLinks ?= []
 
-        callback null, flowConfig, flowStopConfig
+          stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
+          flowStopConfig['router']['config'] = stopRouterConfig
+
+          callback null, flowConfig, flowStopConfig
+
+  _buildEngineOutputConfig: ({flowData, flowToken}, callback) =>
+    config = _.extend devicesThatWantMetadata: ['gimme-metadata'], @meshbluJSON, uuid: flowData.flowId, token: flowToken
+    callback null, config
 
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>

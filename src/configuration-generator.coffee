@@ -1,10 +1,11 @@
-_ = require 'lodash'
-debug = require('debug')('nanocyte-configuration-generator')
-NodeUuid = require 'node-uuid'
-ChannelConfig = require './channel-config'
+_                    = require 'lodash'
+debug                = require('debug')('nanocyte-configuration-generator')
+NodeUuid             = require 'node-uuid'
+ChannelConfig        = require './channel-config'
+MeshbluHttp          = require 'meshblu-http'
 
 DEFAULT_REGISTRY_URL = 'https://s3-us-west-2.amazonaws.com/nanocyte-registry/latest/registry.json'
-METRICS_DEVICE_ID = 'f952aacb-5156-4072-bcae-f830334376b1'
+METRICS_DEVICE_ID    = 'f952aacb-5156-4072-bcae-f830334376b1'
 
 VIRTUAL_NODES =
   'engine-input':
@@ -46,6 +47,8 @@ class ConfigurationGenerator
     @channelConfig ?= new ChannelConfig
       accessKeyId:     options.accessKeyId
       secretAccessKey: options.secretAccessKey
+
+    @meshbluHttp = new MeshbluHttp @meshbluJSON
 
   configure: (options, callback=->) =>
     {flowData, flowToken, deploymentUuid} = options
@@ -106,6 +109,7 @@ class ConfigurationGenerator
         flowConfig['subscribe-devices'].config = @_getSubscribeDevices flowNodes
 
         @_buildEngineOutputConfig {flowData, flowToken}, (error, config) =>
+          return callback error if error?
           flowConfig['engine-output'].config = config
 
           flowStopConfig = _.cloneDeep flowConfig
@@ -119,8 +123,18 @@ class ConfigurationGenerator
           callback null, flowConfig, flowStopConfig
 
   _buildEngineOutputConfig: ({flowData, flowToken}, callback) =>
-    config = _.extend devicesThatWantMetadata: ['gimme-metadata'], @meshbluJSON, uuid: flowData.flowId, token: flowToken
-    callback null, config
+    config = _.extend {forwardMetadataTo: []}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
+
+    deviceUuids = @_getDeviceUuids flowData.nodes
+    return callback null, config if _.isEmpty deviceUuids
+    query =
+      uuid: $in: deviceUuids
+      'octoblu.flow.forwardMetadata': true
+
+    @meshbluHttp.search query, {}, (error, devices) =>
+      return callback error if error?
+      config.forwardMetadataTo = _.map devices, 'uuid'
+      callback null, config
 
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>
@@ -199,9 +213,12 @@ class ConfigurationGenerator
     @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
       callback error, nodeRegistry
 
-  _getSubscribeDevices: (flowConfig) =>
-    devices = _.where flowConfig, category: 'device'
-    return broadcast: _.pluck devices, 'uuid'
+  _getSubscribeDevices: (flowNodes) =>
+    return broadcast: @_getDeviceUuids(flowNodes)
+
+  _getDeviceUuids: (flowNodes) =>
+    devices = _.where flowNodes, category: 'device'
+    _.pluck devices, 'uuid'
 
   _getDevicesThatWantFlowMetadata: (flowConfig) =>
     devices = _.where flowConfig, category: 'device', 'meshblu.flow.forwardMetadata': true

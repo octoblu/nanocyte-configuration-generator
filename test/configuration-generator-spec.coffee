@@ -1,13 +1,28 @@
-_ = require 'lodash'
+_        = require 'lodash'
+shmock   = require 'shmock'
 nodeUuid = require 'node-uuid'
 
 ConfigurationGenerator = require '../src/configuration-generator'
 ConfigurationUtilities = require '../src/configuration-utilities'
 
-sampleFlow = require './data/sample-flow.json'
-nodeRegistry = require './data/node-registry'
+sampleFlow    = require './data/sample-flow.json'
+nodeRegistry  = require './data/node-registry'
 
 describe 'ConfigurationGenerator', ->
+  beforeEach (done) ->
+    @meshblu = shmock done
+    @meshblu.post('/search/devices').reply 200, []
+
+    @meshbluJSON =
+      server: 'localhost'
+      host: "this-is-silly-and-probably-broken"
+      port: @meshblu.address().port
+      uuid: 'brave-user'
+      token: 'who-fears-no-breaking-changes'
+
+  afterEach (done) ->
+    @meshblu.close done
+
   beforeEach ->
     @request = get: sinon.stub()
     @channelConfig =
@@ -16,9 +31,7 @@ describe 'ConfigurationGenerator', ->
 
   describe '->configure', ->
     beforeEach ->
-      options =
-        meshbluJSON:
-          server: 'some-server'
+      options = {@meshbluJSON}
 
       dependencies =
         request: @request
@@ -132,7 +145,7 @@ describe 'ConfigurationGenerator', ->
         expect(@flowConfig['engine-output'].config).containSubset
           uuid: sampleFlow.flowId
           token: 'some-token'
-          server: 'some-server'
+          server: 'localhost'
 
       it 'should set engine-debug', ->
 
@@ -214,7 +227,7 @@ describe 'ConfigurationGenerator', ->
           nanocyte:
             nonce: 'i-am-a-nonce'
           type: 'operation:get-key'
-          url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
+          url: 'http://this-is-silly-and-probably-broken/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-set-key-instance', ->
         expect(@flowConfig['node-set-key-instance'].config).containSubset
@@ -235,7 +248,7 @@ describe 'ConfigurationGenerator', ->
           nanocyte:
             nonce: 'i-am-a-nonce'
           type: 'operation:set-key'
-          url: 'https://meshblu.octoblu.com:443/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
+          url: 'http://this-is-silly-and-probably-broken/v2/devices/dd3d787a-7833-4581-9287-3ad2c5a1273a'
 
       it 'should set node-trigger-instance', ->
         nodeConfigs = _.map @flowConfig, (node) => return node.config

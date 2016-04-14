@@ -18,6 +18,12 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
     @meshblu.close done
 
   beforeEach ->
+    @meshbluJSON =
+      server: 'localhost'
+      port: @meshblu.address().port
+      uuid: 'brave-user'
+      token: 'who-fears-no-breaking-changes'
+
     @request = get: sinon.stub().yields null, {}, nodeRegistry
     @channelConfig =
       fetch: sinon.stub().yields null
@@ -25,12 +31,7 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
 
   describe '->configure', ->
     beforeEach ->
-      options =
-        meshbluJSON:
-          server: 'some-server'
-          uuid: 'user-uuid'
-          token: 'user-token'
-
+      options = meshbluJSON: @meshbluJSON
       dependencies =
         request: @request
         channelConfig: @channelConfig
@@ -39,12 +40,11 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
 
     context 'generating configuration with devices that want metadata', ->
       beforeEach ->
-        @searchHandler = @searchRequest
-          .send
-            uuid:
-              $in: ['gimme-metadata', 'no-metadata-plz']
-            'octoblu.flow.forwardMetadata': true
-          .reply(201, [uuid: 'gimme-metadata'])
+        @searchRequest.send
+          uuid:
+            $in: ['gimme-metadata', 'no-metadata-plz']
+          'octoblu.flow.forwardMetadata': true
+        .reply(200, [uuid: 'gimme-metadata'])
 
       beforeEach (done) ->
         @channelConfig.fetch.yields null
@@ -54,20 +54,19 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
           deploymentUuid: 'the-deployment-uuid'
 
         @sut.configure options, (@error, @flowConfig, flowStopConfig) =>
-          {@devicesThatWantMetadata} = @flowConfig['engine-output'].config
+          {@forwardMetadataTo} = @flowConfig['engine-output'].config
           done()
 
       it 'should configure engine-output with the uuids of devices that want metadata injected into their messages', ->
-        expect(@devicesThatWantMetadata).to.deep.equal ['gimme-metadata']
+        expect(@forwardMetadataTo).to.deep.equal ['gimme-metadata']
 
     context 'generating a configuration for a different flow', ->
       beforeEach ->
-        @searchHandler = @searchRequest
-          .send
-            uuid:
-              $in: ['new-channel-as-device-overlord', 'metadata-luddite', 'fifth-element']
-            'octoblu.flow.forwardMetadata': true
-          .reply(201, [{uuid: 'new-channel-as-device-overlord'}, {uuid: 'fifth-element'}])
+        @searchRequest.send
+          uuid:
+            $in: ['new-channel-as-device-overlord', 'metadata-luddite', 'fifth-element']
+          'octoblu.flow.forwardMetadata': true
+        .reply(200, [{uuid: 'new-channel-as-device-overlord'}, {uuid: 'fifth-element'}])
 
       beforeEach (done) ->
         @channelConfig.fetch.yields null
@@ -77,8 +76,24 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
           deploymentUuid: 'the-deployment-uuid'
 
         @sut.configure options, (@error, @flowConfig, flowStopConfig) =>
-          {@devicesThatWantMetadata} = @flowConfig['engine-output'].config
+          {@forwardMetadataTo} = @flowConfig['engine-output'].config
           done()
 
       it 'should configure engine-output with the uuids of devices that want metadata injected into their messages', ->
-        expect(@devicesThatWantMetadata).to.deep.equal ['new-channel-as-device-overlord', 'fifth-element']
+        expect(@forwardMetadataTo).to.deep.equal ['new-channel-as-device-overlord', 'fifth-element']
+
+    context 'generating a configuration and something goes wrong with meshblu', ->
+      beforeEach ->
+        @searchRequest.reply(422)
+
+      beforeEach (done) ->
+        @channelConfig.fetch.yields null
+        options =
+          flowData: metadataRequestFlow2
+          flowToken: 'some-token'
+          deploymentUuid: 'the-deployment-uuid'
+
+        @sut.configure options, (@error) => done()
+
+      it 'should configure engine-output with the uuids of devices that want metadata injected into their messages', ->
+        expect(@error).to.exist

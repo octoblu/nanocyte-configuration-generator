@@ -196,7 +196,7 @@ describe 'ConfigurationGenerator', ->
 
       it 'should set subscribe-devices', ->
         expect(@flowConfig['subscribe-devices'].config).containSubset
-          'broadcast': [
+          'broadcast.sent': [
             'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
           ]
 

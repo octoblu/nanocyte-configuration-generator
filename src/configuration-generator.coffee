@@ -214,7 +214,7 @@ class ConfigurationGenerator
       callback error, nodeRegistry
 
   _getSubscribeDevices: (flowNodes) =>
-    return broadcast: @_getDeviceUuids(flowNodes)
+    return 'broadcast.sent': @_getDeviceUuids(flowNodes)
 
   _getDeviceUuids: (flowNodes) =>
     devices = _.where flowNodes, category: 'device'

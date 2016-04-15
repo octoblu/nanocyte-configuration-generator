@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-configuration-generator",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Generate Nanocyte configuration from an Octoblu flow",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "nanocyte",
     "IoT"
   ],
-  "author": "sqrt@octoblu.com",
+  "author": "Octoblu, Inc. <npm@octoblu.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/octoblu/nanocyte-configuration-generator/issues"
@@ -38,7 +38,7 @@
     "debug": "^2.2.0",
     "jsonfile": "^2.2.2",
     "lodash": "^3.10.1",
-    "meshblu-http": "^5.3.0",
+    "meshblu-http": "^5.3.1",
     "node-uuid": "^1.4.3",
     "request": "^2.63.0",
     "s3": "^4.4.0"

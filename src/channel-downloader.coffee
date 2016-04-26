@@ -38,7 +38,6 @@ class ChannelDownloader
       callback null, @data
 
   _checkEtagImmediately: =>
-    console.log {@cached}
     list = @s3client.listObjects
       s3Params:
         Bucket: CHANNEL_S3_BUCKET
@@ -46,7 +45,6 @@ class ChannelDownloader
     list.on 'data', (data) =>
       entry = _.find data.Contents, {'Key': 'channels.json'}
       return unless entry?
-      console.log {@etag, entry: entry.ETag}
       return if @etag == entry.ETag
       @etag = entry.ETag
       @cached = false

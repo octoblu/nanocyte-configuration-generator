@@ -1,9 +1,13 @@
-_               = require 'lodash'
-debug           = require('debug')('nanocyte-configuration-generator')
-UUID            = require 'uuid'
-ChannelConfig   = require './channel-config'
-MeshbluHttp     = require 'meshblu-http'
-SimpleBenchmark = require 'simple-benchmark'
+_                      = require 'lodash'
+debug                  = require('debug')('nanocyte-configuration-generator')
+UUID                   = require 'uuid'
+ChannelConfig          = require './channel-config'
+MeshbluHttp            = require 'meshblu-http'
+NodeRegistryDownloader = require './node-registry-downloader'
+SimpleBenchmark        = require 'simple-benchmark'
+
+# outside the class so cache is maintained
+Downloader = new NodeRegistryDownloader
 
 DEFAULT_REGISTRY_URL = 'https://s3-us-west-2.amazonaws.com/nanocyte-registry/latest/registry.json'
 METRICS_DEVICE_ID    = 'f952aacb-5156-4072-bcae-f830334376b1'
@@ -51,6 +55,8 @@ class ConfigurationGenerator
       secretAccessKey: options.secretAccessKey
 
     @meshbluHttp = new MeshbluHttp @meshbluJSON
+
+    Downloader.setOptions {@registryUrl}
 
   configure: (options, callback=->) =>
     {flowData, flowToken, deploymentUuid} = options
@@ -215,8 +221,7 @@ class ConfigurationGenerator
       node
 
   _getNodeRegistry: (callback) =>
-    @request.get @registryUrl, json: true, (error, response, nodeRegistry) =>
-      callback error, nodeRegistry
+    Downloader.update callback
 
   _getSubscribeDevices: (flowNodes) =>
     return 'broadcast.sent': @_getDeviceUuids(flowNodes)

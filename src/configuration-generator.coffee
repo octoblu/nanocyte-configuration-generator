@@ -45,7 +45,7 @@ class ConfigurationGenerator
 
     {@request, @channelConfig} = dependencies
     @request ?= require 'request'
-    @benchmark = new SimpleBenchmark label: "nanocyte-configuration-generator-#{@meshbluJSON.uuid}"
+    @benchmark = new SimpleBenchmark label: "nanocyte-configuration-generator-#{@meshbluJSON?.uuid}"
     @channelConfig ?= new ChannelConfig
       accessKeyId:     options.accessKeyId
       secretAccessKey: options.secretAccessKey

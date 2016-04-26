@@ -26,7 +26,7 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
 
     @request = get: sinon.stub().yields null, {}, nodeRegistry
     @channelConfig =
-      fetch: sinon.stub().yields null
+      update: sinon.stub().yields null
       get: sinon.stub().returns {}
 
   describe '->configure', ->
@@ -47,7 +47,7 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
         .reply(200, [uuid: 'gimme-metadata'])
 
       beforeEach (done) ->
-        @channelConfig.fetch.yields null
+        @channelConfig.update.yields null
         options =
           flowData: metadataRequestFlow
           flowToken: 'some-token'
@@ -69,7 +69,7 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
         .reply(200, [{uuid: 'new-channel-as-device-overlord'}, {uuid: 'fifth-element'}])
 
       beforeEach (done) ->
-        @channelConfig.fetch.yields null
+        @channelConfig.update.yields null
         options =
           flowData: metadataRequestFlow2
           flowToken: 'some-token'
@@ -87,7 +87,7 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
         @searchRequest.reply(422)
 
       beforeEach (done) ->
-        @channelConfig.fetch.yields null
+        @channelConfig.update.yields null
         options =
           flowData: metadataRequestFlow2
           flowToken: 'some-token'

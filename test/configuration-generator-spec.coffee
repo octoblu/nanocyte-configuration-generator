@@ -8,8 +8,8 @@ sampleFlow    = require './data/sample-flow.json'
 nodeRegistry  = require './data/node-registry'
 
 describe 'ConfigurationGenerator', ->
-  beforeEach (done) ->
-    @meshblu = shmock done
+  beforeEach ->
+    @meshblu = shmock()
     @meshblu.post('/search/devices').reply 200, []
 
     @meshbluJSON =
@@ -18,6 +18,11 @@ describe 'ConfigurationGenerator', ->
       port: @meshblu.address().port
       uuid: 'brave-user'
       token: 'who-fears-no-breaking-changes'
+
+  beforeEach ->
+    @registry = shmock()
+    @registry.get('/registry').reply 200, nodeRegistry
+    @registryUrl = "http://localhost:#{@registry.address().port}/registry"
 
   afterEach (done) ->
     @meshblu.close done
@@ -30,7 +35,7 @@ describe 'ConfigurationGenerator', ->
 
   describe '->configure', ->
     beforeEach ->
-      options = {@meshbluJSON}
+      options = {@meshbluJSON, @registryUrl}
 
       dependencies =
         request: @request
@@ -47,7 +52,6 @@ describe 'ConfigurationGenerator', ->
     describe 'when called', ->
       beforeEach (done) ->
         githubConfig = require './data/github-channel.json'
-        @request.get.yields null, {}, nodeRegistry
         @channelConfig.update.yields null
         @channelConfig.get.withArgs('channel:github').returns githubConfig
         @sut._generateFlowMetricId.onCall(0).returns '000000-fake-metric-uuid-9999'
@@ -72,12 +76,6 @@ describe 'ConfigurationGenerator', ->
 
       it 'should call channelConfig.update', ->
         expect(@channelConfig.update).to.have.been.called
-
-      it 'should call request.get', ->
-        expect(@request.get).to.have.been.calledWith(
-          'https://s3-us-west-2.amazonaws.com/nanocyte-registry/latest/registry.json'
-          json: true
-        )
 
       it 'should return a flow configuration with keys for all the nodes in the flow', ->
         expect(_.keys @flowConfig).to.contain.deep.members [

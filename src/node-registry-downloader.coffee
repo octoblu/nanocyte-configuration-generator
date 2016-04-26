@@ -16,6 +16,7 @@ class NodeRegistryDownloader
 
     request.get @registryUrl, json: true, (error, response, @data) =>
       return callback error if error?
+      return callback new Error "invalid response code: #{response.statusCode}" if response.statusCode > 300
       @etag = response.headers.etag
       @cached = true
       callback null, @data

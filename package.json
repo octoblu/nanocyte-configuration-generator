@@ -4,7 +4,7 @@
   "description": "Generate Nanocyte configuration from an Octoblu flow",
   "main": "index.js",
   "scripts": {
-    "test": "istanbul cover _mocha -- -R spec"
+    "test": "istanbul cover _mocha -- -R spec --require coffee-coverage/register-istanbul"
   },
   "repository": {
     "type": "git",
@@ -36,11 +36,11 @@
   },
   "dependencies": {
     "debug": "^2.2.0",
-    "jsonfile": "^2.2.2",
     "lodash": "^3.10.1",
     "meshblu-http": "^5.3.1",
-    "node-uuid": "^1.4.3",
     "request": "^2.63.0",
-    "s3": "^4.4.0"
+    "s3": "^4.4.0",
+    "simple-benchmark": "^1.0.7",
+    "uuid": "^2.0.2"
   }
 }

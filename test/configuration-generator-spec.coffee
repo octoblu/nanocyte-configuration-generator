@@ -1,6 +1,5 @@
 _        = require 'lodash'
 shmock   = require 'shmock'
-nodeUuid = require 'node-uuid'
 
 ConfigurationGenerator = require '../src/configuration-generator'
 ConfigurationUtilities = require '../src/configuration-utilities'
@@ -26,7 +25,7 @@ describe 'ConfigurationGenerator', ->
   beforeEach ->
     @request = get: sinon.stub()
     @channelConfig =
-      fetch: sinon.stub()
+      update: sinon.stub()
       get: sinon.stub()
 
   describe '->configure', ->
@@ -49,7 +48,7 @@ describe 'ConfigurationGenerator', ->
       beforeEach (done) ->
         githubConfig = require './data/github-channel.json'
         @request.get.yields null, {}, nodeRegistry
-        @channelConfig.fetch.yields null
+        @channelConfig.update.yields null
         @channelConfig.get.withArgs('channel:github').returns githubConfig
         @sut._generateFlowMetricId.onCall(0).returns '000000-fake-metric-uuid-9999'
 
@@ -71,8 +70,8 @@ describe 'ConfigurationGenerator', ->
 
         @sut.configure options, (@error, @flowConfig, @flowStopConfig) => done()
 
-      it 'should call channelConfig.fetch', ->
-        expect(@channelConfig.fetch).to.have.been.called
+      it 'should call channelConfig.update', ->
+        expect(@channelConfig.update).to.have.been.called
 
       it 'should call request.get', ->
         expect(@request.get).to.have.been.calledWith(
@@ -481,7 +480,6 @@ describe 'ConfigurationGenerator', ->
               'fluff-1':
                 type: 'nanocyte-node-fluff'
                 linkedToPrev: true
-
 
         @sut._generateInstanceId.onCall(0).returns 'some-node-instance-uuid'
         @sut._generateInstanceId.onCall(1).returns 'some-other-node-instance-uuid'

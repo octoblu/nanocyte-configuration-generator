@@ -1,8 +1,9 @@
-_                    = require 'lodash'
-debug                = require('debug')('nanocyte-configuration-generator')
-NodeUuid             = require 'node-uuid'
-ChannelConfig        = require './channel-config'
-MeshbluHttp          = require 'meshblu-http'
+_               = require 'lodash'
+debug           = require('debug')('nanocyte-configuration-generator')
+UUID            = require 'uuid'
+ChannelConfig   = require './channel-config'
+MeshbluHttp     = require 'meshblu-http'
+SimpleBenchmark = require 'simple-benchmark'
 
 DEFAULT_REGISTRY_URL = 'https://s3-us-west-2.amazonaws.com/nanocyte-registry/latest/registry.json'
 METRICS_DEVICE_ID    = 'f952aacb-5156-4072-bcae-f830334376b1'
@@ -44,6 +45,7 @@ class ConfigurationGenerator
 
     {@request, @channelConfig} = dependencies
     @request ?= require 'request'
+    @benchmark = new SimpleBenchmark label: "nanocyte-configuration-generator-#{@meshbluJSON.uuid}"
     @channelConfig ?= new ChannelConfig
       accessKeyId:     options.accessKeyId
       secretAccessKey: options.secretAccessKey
@@ -53,15 +55,13 @@ class ConfigurationGenerator
   configure: (options, callback=->) =>
     {flowData, flowToken, deploymentUuid} = options
 
-    debug 'configuring flow...', flowData
-
-    debug 'fetching registry'
-    @channelConfig.fetch (error) =>
+    @channelConfig.update (error) =>
+      debug 'channelConfig.fetch', @benchmark.toString()
       return callback error if error?
 
       @_getNodeRegistry (error, nodeRegistry) =>
+        debug 'getNodeRegistry', @benchmark.toString()
         return callback error if error?
-        debug 'fetched registry', nodeRegistry
 
         flowMetricNode =
           id: @_generateFlowMetricId()
@@ -99,7 +99,10 @@ class ConfigurationGenerator
 
           flowConfig[instanceId] = {config: config, data: data}
 
+        debug 'instanceMap', @benchmark.toString()
+
         links = @_buildLinks(flowData.links, instanceMap)
+        debug 'buildLinks', @benchmark.toString()
         flowConfig.router.config = links
 
         flowConfig['engine-data'].config  = @_buildNodeMap instanceMap
@@ -109,6 +112,7 @@ class ConfigurationGenerator
         flowConfig['subscribe-devices'].config = @_getSubscribeDevices flowNodes
 
         @_buildEngineOutputConfig {flowData, flowToken}, (error, config) =>
+          debug 'buildEngineOutputConfig', @benchmark.toString()
           return callback error if error?
           flowConfig['engine-output'].config = config
 
@@ -119,6 +123,7 @@ class ConfigurationGenerator
 
           stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
           flowStopConfig['router']['config'] = stopRouterConfig
+          debug 'calling back', @benchmark.toString()
 
           callback null, flowConfig, flowStopConfig
 
@@ -225,7 +230,6 @@ class ConfigurationGenerator
     return broadcast: _.pluck devices, 'uuid'
 
   _buildLinks: (links, instanceMap) =>
-    debug 'building links with', links
     result = {}
     _.each instanceMap, (config, instanceId) =>
       nodeLinks = _.filter links, from: config.nodeUuid
@@ -254,7 +258,6 @@ class ConfigurationGenerator
         linkUuids = _.pluck nodeLinks, 'to'
         _.each instanceMap, (data, key) =>
           if _.contains linkUuids, data.nodeUuid
-            # return if data.debug
             linkedTo.push key if data.linkedToPrev
 
       _.each config.linkedTo, (templateLinkId) =>
@@ -286,8 +289,6 @@ class ConfigurationGenerator
     result['engine-data'] =
       type: 'engine-data'
       linkedTo: []
-
-    debug 'router config is', result
 
     return result
 
@@ -340,15 +341,15 @@ class ConfigurationGenerator
     return config
 
   _generateFlowMetricId: =>
-    NodeUuid.v4()
+    UUID.v4()
 
   _generateInstanceId: =>
-    NodeUuid.v4()
+    UUID.v4()
 
   _generateNonce: =>
-    NodeUuid.v4()
+    UUID.v4()
 
   _generateTransactionGroupId: =>
-    NodeUuid.v4()
+    UUID.v4()
 
 module.exports = ConfigurationGenerator

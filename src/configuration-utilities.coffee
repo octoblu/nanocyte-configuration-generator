@@ -14,5 +14,4 @@ class ConfigurationUtilities
   findLinkedToNanocytes: (id) =>
     return _.filter @config, (nanocyte) => _.contains nanocyte.linkedTo, id
 
-
 module.exports = ConfigurationUtilities

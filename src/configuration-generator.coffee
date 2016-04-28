@@ -96,12 +96,15 @@ class ConfigurationGenerator
 
           config = @_legacyConversion _.cloneDeep config # prevent accidental mutation
           config.templateOriginalMessage = instanceConfig.templateOriginalMessage
-          getSetConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
+          getSetNodesConfig = @_mutilateGetSetNodes uuid: flowData.flowId, token: flowToken, config
 
-          channelApiMatch = @channelConfig.get config.type
           defaultConfig = {}
-          defaultConfig.channelApiMatch = channelApiMatch if channelApiMatch?
-          config = _.defaultsDeep defaultConfig, config, getSetConfig
+          if config.category == 'channel'
+            channelApiMatch = @channelConfig.get config.type
+            return callback new Error "Missing channel config for: #{config.type}" unless channelApiMatch?
+            defaultConfig.channelApiMatch = channelApiMatch
+
+          config = _.defaultsDeep defaultConfig, config, getSetNodesConfig
 
           flowConfig[instanceId] = {config: config, data: data}
 

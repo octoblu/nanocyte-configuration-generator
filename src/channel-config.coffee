@@ -9,7 +9,7 @@ class ChannelConfig
     Downloader.setOptions options
 
   get: (type) =>
-    _.findWhere @_channels, type: type
+    _.findWhere @channels, type: type
 
   update: (callback) =>
     Downloader.update (error, @channels) =>

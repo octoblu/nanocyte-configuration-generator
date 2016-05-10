@@ -124,6 +124,7 @@ class ConfigurationGenerator
           debug 'buildEngineOutputConfig', @benchmark.toString()
           return callback error if error?
           flowConfig['engine-output'].config = config
+          flowConfig['engine-output'].config.nodeMap = @_buildNodeMap instanceMap
 
           flowStopConfig = _.cloneDeep flowConfig
 

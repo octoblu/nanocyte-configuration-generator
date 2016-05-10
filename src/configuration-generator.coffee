@@ -233,10 +233,6 @@ class ConfigurationGenerator
     devices = _.where flowNodes, category: 'device'
     _.pluck devices, 'uuid'
 
-  _getDevicesThatWantFlowMetadata: (flowConfig) =>
-    devices = _.where flowConfig, category: 'device', 'meshblu.flow.forwardMetadata': true
-    return broadcast: _.pluck devices, 'uuid'
-
   _buildLinks: (links, instanceMap) =>
     result = {}
     _.each instanceMap, (config, instanceId) =>

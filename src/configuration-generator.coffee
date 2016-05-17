@@ -231,8 +231,14 @@ class ConfigurationGenerator
     return 'broadcast.sent': @_getDeviceUuids(flowNodes)
 
   _getDeviceUuids: (flowNodes) =>
-    devices = _.where flowNodes, category: 'device'
+    # devices = _.where flowNodes, category: 'device'
+    devices = _.filter flowNodes, @_isDevice
     _.pluck devices, 'uuid'
+
+  _isDevice: (item) =>
+    return true if item.meshblu?
+    return true if item.class == 'device-flow'
+    return false
 
   _buildLinks: (links, instanceMap) =>
     result = {}

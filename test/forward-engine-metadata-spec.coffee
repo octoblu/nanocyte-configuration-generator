@@ -1,7 +1,9 @@
-_                      = require 'lodash'
+{afterEach, beforeEach, context, describe, it} = global
+{expect} = require 'chai'
+sinon = require 'sinon'
+
 shmock                 = require 'shmock'
 ConfigurationGenerator = require '../src/configuration-generator'
-ConfigurationUtilities = require '../src/configuration-utilities'
 
 metadataRequestFlow    = require './data/metadata-request-flow.json'
 metadataRequestFlow2    = require './data/metadata-request-flow-2.json'

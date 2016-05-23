@@ -179,6 +179,7 @@ class ConfigurationGenerator
 
       type = config.category
       type = config.type.replace('operation:', '') if type == 'operation'
+      type = 'device' if @_isDevice config
       nodeFromRegistry = nodeRegistry[type] ? {}
 
       composedOf = _.cloneDeep(nodeFromRegistry.composedOf) ? {}

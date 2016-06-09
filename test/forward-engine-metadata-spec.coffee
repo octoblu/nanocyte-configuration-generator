@@ -16,7 +16,6 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
   beforeEach (done) ->
     @meshblu = shmock done
     enableDestroy @meshblu
-    @searchRequest = @meshblu.post '/search/devices'
 
   afterEach (done) ->
     @meshblu.destroy done
@@ -44,11 +43,24 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
 
     context 'generating configuration with devices that want metadata', ->
       beforeEach ->
-        @searchRequest.send
-          uuid:
-            $in: ['gimme-metadata', 'no-metadata-plz']
-          'octoblu.flow.forwardMetadata': true
-        .reply(200, [uuid: 'gimme-metadata'])
+        @meshblu
+          .post '/search/devices'
+          .send({
+            uuid:
+              $in: ['gimme-metadata', 'no-metadata-plz']
+            'octoblu.flow.forwardMetadata': true
+          })
+          .reply(200, [uuid: 'gimme-metadata'])
+
+      beforeEach ->
+        @meshblu
+          .post '/search/devices'
+          .send({
+            uuid:
+              $in: ['gimme-metadata', 'no-metadata-plz']
+            'schemas.version': '1.0.0'
+          })
+          .reply(200, [])
 
       beforeEach (done) ->
         @channelConfig.update.yields null
@@ -57,20 +69,71 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
           flowToken: 'some-token'
           deploymentUuid: 'the-deployment-uuid'
 
-        @sut.configure options, (@error, @flowConfig, flowStopConfig) =>
+        @sut.configure options, (@error, @flowConfig) =>
+          return done @error if @error?
           {@forwardMetadataTo} = @flowConfig['engine-output'].config
           done()
 
       it 'should configure engine-output with the uuids of devices that want metadata injected into their messages', ->
         expect(@forwardMetadataTo).to.deep.equal ['gimme-metadata']
 
+    context 'generating configuration with devices that use new schemas', ->
+      beforeEach ->
+        @meshblu
+          .post '/search/devices'
+          .send({
+            uuid:
+              $in: ['gimme-metadata', 'no-metadata-plz']
+            'octoblu.flow.forwardMetadata': true
+          })
+          .reply(200, [uuid: 'gimme-metadata'])
+
+      beforeEach ->
+        @meshblu
+          .post '/search/devices'
+          .send({
+            uuid:
+              $in: ['gimme-metadata', 'no-metadata-plz']
+            'schemas.version': '1.0.0'
+          })
+          .reply(200, [uuid: 'gimme-metadata'])
+
+      beforeEach (done) ->
+        @channelConfig.update.yields null
+        options =
+          flowData: metadataRequestFlow
+          flowToken: 'some-token'
+          deploymentUuid: 'the-deployment-uuid'
+
+        @sut.configure options, (@error, @flowConfig) =>
+          return done @error if @error?
+          @engineOutputConfig = @flowConfig['engine-output'].config
+          done()
+
+      it 'should configure engine-output with uuids of devices that do not want their output wrapped in a payload', ->
+        expect(@engineOutputConfig.noPayloadForUsPlease).to.deep.equal ['gimme-metadata']
+
     context 'generating a configuration for a different flow', ->
       beforeEach ->
-        @searchRequest.send
-          uuid:
-            $in: ['new-channel-as-device-overlord', 'metadata-luddite', 'fifth-element']
-          'octoblu.flow.forwardMetadata': true
+        @meshblu
+          .post '/search/devices'
+          .send({
+            uuid:
+              $in: ['new-channel-as-device-overlord', 'metadata-luddite', 'fifth-element']
+            'octoblu.flow.forwardMetadata': true
+          })
         .reply(200, [{uuid: 'new-channel-as-device-overlord'}, {uuid: 'fifth-element'}])
+
+      beforeEach ->
+        @meshblu
+          .post '/search/devices'
+          .send({
+            uuid:
+              $in: ['new-channel-as-device-overlord', 'metadata-luddite', 'fifth-element']
+            'schemas.version': '1.0.0'
+          })
+          .reply(200, [])
+
 
       beforeEach (done) ->
         @channelConfig.update.yields null
@@ -79,7 +142,7 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
           flowToken: 'some-token'
           deploymentUuid: 'the-deployment-uuid'
 
-        @sut.configure options, (@error, @flowConfig, flowStopConfig) =>
+        @sut.configure options, (@error, @flowConfig) =>
           {@forwardMetadataTo} = @flowConfig['engine-output'].config
           done()
 
@@ -88,7 +151,9 @@ describe 'Configuring EngineOutput to insert metadata into messages', ->
 
     context 'generating a configuration and something goes wrong with meshblu', ->
       beforeEach ->
-        @searchRequest.reply(422)
+        @meshblu
+          .post '/search/devices'
+          .reply 422
 
       beforeEach (done) ->
         @channelConfig.update.yields null

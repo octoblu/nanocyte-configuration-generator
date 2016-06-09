@@ -1,3 +1,7 @@
+{afterEach, beforeEach, describe, it} = global
+{expect} = require 'chai'
+sinon = require 'sinon'
+
 _        = require 'lodash'
 shmock   = require 'shmock'
 enableDestroy = require 'server-destroy'
@@ -12,6 +16,7 @@ describe 'ConfigurationGenerator', ->
   beforeEach ->
     @meshblu = shmock()
     enableDestroy @meshblu
+    @meshblu.post('/search/devices').reply 200, []
     @meshblu.post('/search/devices').reply 200, []
 
     @meshbluJSON =

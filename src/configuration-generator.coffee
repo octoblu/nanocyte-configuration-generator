@@ -1,3 +1,4 @@
+async                  = require 'async'
 _                      = require 'lodash'
 debug                  = require('debug')('nanocyte-configuration-generator')
 UUID                   = require 'uuid'
@@ -142,16 +143,14 @@ class ConfigurationGenerator
 
     deviceUuids = @_getDeviceUuids flowData.nodes
     return callback null, config if _.isEmpty deviceUuids
-    query =
-      uuid: $in: deviceUuids
-      'octoblu.flow.forwardMetadata': true
 
-    projection =
-      uuid: true
-
-    @meshbluHttp.search query, {projection}, (error, devices) =>
+    async.series {
+      forwardMetadataTo:    async.apply(@_getForwardMetadataTo, deviceUuids)
+      noPayloadForUsPlease: async.apply(@_getNoPayloadForUsPlease, deviceUuids)
+    }, (error, results) =>
       return callback error if error?
-      config.forwardMetadataTo = _.map devices, 'uuid'
+      config.forwardMetadataTo    = results.forwardMetadataTo
+      config.noPayloadForUsPlease = results.noPayloadForUsPlease
       callback null, config
 
   _buildNodeMap: (flowNodeMap) =>
@@ -230,6 +229,30 @@ class ConfigurationGenerator
 
   _getNodeRegistry: (callback) =>
     Downloader.update callback
+
+  _getForwardMetadataTo: (deviceUuids, callback) =>
+    query =
+      uuid: $in: deviceUuids
+      'octoblu.flow.forwardMetadata': true
+
+    projection =
+      uuid: true
+
+    @meshbluHttp.search query, {projection}, (error, devices) =>
+      return callback error if error?
+      return callback null, _.map(devices, 'uuid')
+
+  _getNoPayloadForUsPlease: (deviceUuids, callback) =>
+    query =
+      uuid: $in: deviceUuids
+      'schemas.version': '1.0.0'
+
+    projection =
+      uuid: true
+
+    @meshbluHttp.search query, {projection}, (error, devices) =>
+      return callback error if error?
+      return callback null, _.map(devices, 'uuid')
 
   _getSubscribeDevices: (flowNodes) =>
     return 'broadcast.sent': @_getDeviceUuids(flowNodes)

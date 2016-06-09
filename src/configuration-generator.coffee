@@ -139,7 +139,11 @@ class ConfigurationGenerator
           callback null, flowConfig, flowStopConfig
 
   _buildEngineOutputConfig: ({flowData, flowToken}, callback) =>
-    config = _.extend {forwardMetadataTo: []}, @meshbluJSON, uuid: flowData.flowId, token: flowToken
+    config = _.extend(
+      {forwardMetadataTo: [], noPayloadForUsPlease: []},
+      @meshbluJSON,
+      {uuid: flowData.flowId, token: flowToken}
+    )
 
     deviceUuids = @_getDeviceUuids flowData.nodes
     return callback null, config if _.isEmpty deviceUuids

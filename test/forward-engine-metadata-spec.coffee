@@ -1,6 +1,7 @@
 {afterEach, beforeEach, context, describe, it} = global
 {expect} = require 'chai'
 sinon = require 'sinon'
+enableDestroy = require 'server-destroy'
 
 shmock                 = require 'shmock'
 ConfigurationGenerator = require '../src/configuration-generator'
@@ -14,10 +15,11 @@ nodeRegistry           = require './data/node-registry'
 describe 'Configuring EngineOutput to insert metadata into messages', ->
   beforeEach (done) ->
     @meshblu = shmock done
+    enableDestroy @meshblu
     @searchRequest = @meshblu.post '/search/devices'
 
   afterEach (done) ->
-    @meshblu.close done
+    @meshblu.destroy done
 
   beforeEach ->
     @meshbluJSON =

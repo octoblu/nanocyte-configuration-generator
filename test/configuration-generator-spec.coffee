@@ -1,5 +1,6 @@
 _        = require 'lodash'
 shmock   = require 'shmock'
+enableDestroy = require 'server-destroy'
 
 ConfigurationGenerator = require '../src/configuration-generator'
 ConfigurationUtilities = require '../src/configuration-utilities'
@@ -10,6 +11,7 @@ nodeRegistry  = require './data/node-registry'
 describe 'ConfigurationGenerator', ->
   beforeEach ->
     @meshblu = shmock()
+    enableDestroy @meshblu
     @meshblu.post('/search/devices').reply 200, []
 
     @meshbluJSON =
@@ -21,11 +23,15 @@ describe 'ConfigurationGenerator', ->
 
   beforeEach ->
     @registry = shmock()
+    enableDestroy @registry
     @registry.get('/registry').reply 200, nodeRegistry
     @registryUrl = "http://localhost:#{@registry.address().port}/registry"
 
   afterEach (done) ->
-    @meshblu.close done
+    @registry.destroy done
+
+  afterEach (done) ->
+    @meshblu.destroy done
 
   beforeEach ->
     @request = get: sinon.stub()

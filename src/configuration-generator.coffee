@@ -146,7 +146,10 @@ class ConfigurationGenerator
       uuid: $in: deviceUuids
       'octoblu.flow.forwardMetadata': true
 
-    @meshbluHttp.search query, {}, (error, devices) =>
+    projection =
+      uuid: true
+
+    @meshbluHttp.search query, {projection}, (error, devices) =>
       return callback error if error?
       config.forwardMetadataTo = _.map devices, 'uuid'
       callback null, config

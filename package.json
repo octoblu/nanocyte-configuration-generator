@@ -1,6 +1,6 @@
 {
   "name": "nanocyte-configuration-generator",
-  "version": "4.7.0",
+  "version": "4.7.1",
   "description": "Generate Nanocyte configuration from an Octoblu flow",
   "main": "index.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "sinon-chai": "^2.8.0"
   },
   "dependencies": {
+    "async": "^2.0.0-rc.6",
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
     "meshblu-http": "^5.3.1",

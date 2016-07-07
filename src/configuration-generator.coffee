@@ -120,38 +120,25 @@ class ConfigurationGenerator
         flowConfig['engine-input'].config = @_buildMeshblutoNodeMap flowConfig, instanceMap
         flowConfig['subscribe-devices'].config = @_getSubscribeDevices flowNodes
 
-        @_buildEngineOutputConfig {flowData, flowToken}, (error, config) =>
-          debug 'buildEngineOutputConfig', @benchmark.toString()
-          return callback error if error?
-          flowConfig['engine-output'].config = config
-          flowConfig['engine-output'].config.nodeMap = @_buildNodeMap instanceMap
+        config = @_buildEngineOutputConfig {flowData, flowToken}
 
-          flowStopConfig = _.cloneDeep flowConfig
+        flowConfig['engine-output'].config = config
+        flowConfig['engine-output'].config.nodeMap = @_buildNodeMap instanceMap
 
-          engineStopLinks = flowConfig['router']['config']['engine-stop']?.linkedTo
-          engineStopLinks ?= []
+        flowStopConfig = _.cloneDeep flowConfig
 
-          stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
-          flowStopConfig['router']['config'] = stopRouterConfig
-          debug 'calling back', @benchmark.toString()
+        engineStopLinks = flowConfig['router']['config']['engine-stop']?.linkedTo
+        engineStopLinks ?= []
 
-          callback null, flowConfig, flowStopConfig
+        stopRouterConfig = _.pick flowConfig['router']['config'], 'engine-stop', 'engine-output', engineStopLinks...
+        flowStopConfig['router']['config'] = stopRouterConfig
+        debug 'calling back', @benchmark.toString()
+
+        callback null, flowConfig, flowStopConfig
 
   _buildEngineOutputConfig: ({flowData, flowToken}, callback) =>
-    config = _.extend(
-      {forwardMetadataTo: []},
-      @meshbluJSON,
-      {uuid: flowData.flowId, token: flowToken}
-    )
-
-    deviceUuids = @_getDeviceUuids flowData.nodes
-    return callback null, config if _.isEmpty deviceUuids
-
-    @_getForwardMetadataTo deviceUuids, (error, forwardMetadataTo) =>
-      return callback error if error?
-      config.forwardMetadataTo = forwardMetadataTo
-      callback null, config
-
+    _.extend @meshbluJSON, {uuid: flowData.flowId, token: flowToken}
+    
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>
       nodeId: flowNode.nodeUuid

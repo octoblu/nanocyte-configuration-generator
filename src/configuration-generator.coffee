@@ -138,7 +138,7 @@ class ConfigurationGenerator
 
   _buildEngineOutputConfig: ({flowData, flowToken}, callback) =>
     _.extend @meshbluJSON, {uuid: flowData.flowId, token: flowToken}
-    
+
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>
       nodeId: flowNode.nodeUuid
@@ -325,9 +325,7 @@ class ConfigurationGenerator
     bearerToken = new Buffer("#{uuid}:#{token}").toString('base64')
 
     {host,protocol,port} = @meshbluJSON
-    host ?= 'meshblu.octoblu.com:443'
-    if host == 'meshblu-messages.octoblu.com:443'
-      host = 'meshblu.octoblu.com:443'
+    host ?= 'meshblu-http.octoblu.com:443'
     port ?= 443
     protocol ?= 'http'
     protocol = 'https' if parseInt(port) == 443

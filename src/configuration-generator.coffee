@@ -43,7 +43,13 @@ VIRTUAL_NODES =
 
 class ConfigurationGenerator
   constructor: (options, dependencies={}) ->
-    {@registryUrl, @meshbluJSON, @metricsDeviceId} = options
+    {
+      @registryUrl
+      @meshbluJSON
+      @metricsDeviceId
+    } = options
+
+    @meshbluJSON ?= {}
     @registryUrl ?= DEFAULT_REGISTRY_URL
     @metricsDeviceId ?= METRICS_DEVICE_ID
 
@@ -137,7 +143,7 @@ class ConfigurationGenerator
         callback null, flowConfig, flowStopConfig
 
   _buildEngineOutputConfig: ({flowData, flowToken}, callback) =>
-    _.extend @meshbluJSON, {uuid: flowData.flowId, token: flowToken}
+    _.defaults {uuid: flowData.flowId, token: flowToken}, @meshbluJSON
 
   _buildNodeMap: (flowNodeMap) =>
     _.mapValues flowNodeMap, (flowNode) =>

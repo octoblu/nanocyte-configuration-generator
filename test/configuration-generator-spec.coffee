@@ -498,7 +498,15 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-fluff'
-            linkedTo: ['some-other-node-instance-uuid', 'engine-pulse']
+            "eventLinks": {
+              "broadcast.sent": [
+                "some-other-node-instance-uuid"
+              ]
+              "message.sent": [
+                "some-other-node-instance-uuid"
+              ]
+            }
+            linkedTo: ['engine-pulse']
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-fluff'
             linkedTo: []
@@ -554,7 +562,15 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-tuff'
-            linkedTo: ['yet-some-other-node-instance-uuid', 'engine-pulse']
+            linkedTo: ['engine-pulse']
+            eventLinks: {
+              "broadcast.sent": [
+                "yet-some-other-node-instance-uuid"
+              ]
+              "message.sent": [
+                "yet-some-other-node-instance-uuid"
+              ]
+            }
           'yet-some-other-node-instance-uuid':
             type: 'nanocyte-node-tuff'
             linkedTo: []
@@ -627,7 +643,17 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-fluff'
-            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid', 'engine-pulse']
+            eventLinks: {
+             "broadcast.sent": [
+               "some-other-node-instance-uuid"
+               "another-node-instance-uuid"
+             ]
+             "message.sent": [
+               "some-other-node-instance-uuid"
+               "another-node-instance-uuid"
+             ]
+            }
+            linkedTo: ['engine-pulse']
           'some-other-node-instance-uuid':
             linkedTo: []
             type: 'nanocyte-node-fluff'
@@ -719,13 +745,33 @@ describe 'ConfigurationGenerator', ->
         links =
           'some-node-instance-uuid':
             type: 'nanocyte-node-fluff'
-            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid', 'engine-pulse']
+            eventLinks: {
+             "broadcast.sent": [
+               "some-other-node-instance-uuid"
+               "another-node-instance-uuid"
+             ]
+             "message.sent": [
+               "some-other-node-instance-uuid"
+               "another-node-instance-uuid"
+             ]
+            }
+            linkedTo: ['engine-pulse']
           'some-other-node-instance-uuid':
             type: 'nanocyte-node-stuff'
             linkedTo: []
           'some-different-node-instance-uuid':
             type: 'nanocyte-node-ruff'
-            linkedTo: ['some-other-node-instance-uuid', 'another-node-instance-uuid', 'engine-pulse']
+            eventLinks: {
+             "broadcast.sent": [
+               "some-other-node-instance-uuid"
+               "another-node-instance-uuid"
+             ]
+             "message.sent": [
+               "some-other-node-instance-uuid"
+               "another-node-instance-uuid"
+             ]
+            }
+            linkedTo: ['engine-pulse']
           'another-node-instance-uuid':
             linkedTo: []
             type: 'nanocyte-node-buff'

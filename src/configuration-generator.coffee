@@ -191,6 +191,7 @@ class ConfigurationGenerator
         composedConfig.nodeUuid = nodeUuid
         composedConfig.templateId = templateId
         composedConfig.transactionGroupId = transactionGroupId if linkedToData?
+        composedConfig.instanceId = instanceId
 
         instanceMap[instanceId] = composedConfig
 
@@ -253,6 +254,7 @@ class ConfigurationGenerator
       nodeLinks = _.filter links, from: config.nodeUuid
       templateLinks = config.linkedTo
       linkedTo = []
+      eventLinks = {}
 
       if config.linkedToInput
         result[config.nodeUuid] ?=
@@ -273,10 +275,14 @@ class ConfigurationGenerator
         result['engine-stop'].linkedTo.push instanceId
 
       if config.linkedToNext
-        linkUuids = _.pluck nodeLinks, 'to'
-        _.each instanceMap, (data, key) =>
-          if _.contains linkUuids, data.nodeUuid
-            linkedTo.push key if data.linkedToPrev
+        _.each nodeLinks, (link) =>
+          nodesToAdd = _.pluck _.filter(instanceMap, nodeUuid: link.to, linkedToPrev: true), 'instanceId'
+          if link.type?
+            eventLinks[link.type] = [].concat eventLinks[link.type] || [], nodesToAdd
+          else
+            #old behavior
+            eventLinks['broadcast.sent'] = [].concat eventLinks['broadcast.sent'] || [], nodesToAdd
+            eventLinks['message.sent'] = [].concat eventLinks['message.sent'] || [], nodesToAdd
 
       _.each config.linkedTo, (templateLinkId) =>
         _.each instanceMap, (data, key) =>
@@ -289,6 +295,7 @@ class ConfigurationGenerator
       linkedTo.push 'engine-debug' if config.debug
 
       result[instanceId] =
+        eventLinks: eventLinks
         type: config.type
         linkedTo: linkedTo
         linkedToNext: config.linkedToNext

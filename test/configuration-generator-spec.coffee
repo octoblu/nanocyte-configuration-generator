@@ -502,7 +502,7 @@ describe 'ConfigurationGenerator', ->
               "broadcast.sent": [
                 "some-other-node-instance-uuid"
               ]
-              "message.sent": [
+              "message.received": [
                 "some-other-node-instance-uuid"
               ]
             }
@@ -567,7 +567,7 @@ describe 'ConfigurationGenerator', ->
               "broadcast.sent": [
                 "yet-some-other-node-instance-uuid"
               ]
-              "message.sent": [
+              "message.received": [
                 "yet-some-other-node-instance-uuid"
               ]
             }
@@ -648,7 +648,7 @@ describe 'ConfigurationGenerator', ->
                "some-other-node-instance-uuid"
                "another-node-instance-uuid"
              ]
-             "message.sent": [
+             "message.received": [
                "some-other-node-instance-uuid"
                "another-node-instance-uuid"
              ]
@@ -750,7 +750,7 @@ describe 'ConfigurationGenerator', ->
                "some-other-node-instance-uuid"
                "another-node-instance-uuid"
              ]
-             "message.sent": [
+             "message.received": [
                "some-other-node-instance-uuid"
                "another-node-instance-uuid"
              ]
@@ -766,7 +766,7 @@ describe 'ConfigurationGenerator', ->
                "some-other-node-instance-uuid"
                "another-node-instance-uuid"
              ]
-             "message.sent": [
+             "message.received": [
                "some-other-node-instance-uuid"
                "another-node-instance-uuid"
              ]

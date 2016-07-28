@@ -282,7 +282,7 @@ class ConfigurationGenerator
           else
             #old behavior
             eventLinks['broadcast.sent'] = [].concat eventLinks['broadcast.sent'] || [], nodesToAdd
-            eventLinks['message.sent'] = [].concat eventLinks['message.sent'] || [], nodesToAdd
+            eventLinks['message.received'] = [].concat eventLinks['message.received'] || [], nodesToAdd
 
       _.each config.linkedTo, (templateLinkId) =>
         _.each instanceMap, (data, key) =>

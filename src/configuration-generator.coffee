@@ -192,7 +192,7 @@ class ConfigurationGenerator
         composedConfig.templateId = templateId
         composedConfig.transactionGroupId = transactionGroupId if linkedToData?
         composedConfig.instanceId = instanceId
-
+        composedConfig.eventType = config.eventType
         instanceMap[instanceId] = composedConfig
 
     return instanceMap
@@ -254,7 +254,10 @@ class ConfigurationGenerator
       nodeLinks = _.filter links, from: config.nodeUuid
       templateLinks = config.linkedTo
       linkedTo = []
-      eventLinks = {}
+      eventLinks =
+        'broadcast.sent': []
+        'message.received': []
+        'configure.sent': []
 
       if config.linkedToInput
         result[config.nodeUuid] ?=
@@ -276,13 +279,14 @@ class ConfigurationGenerator
 
       if config.linkedToNext
         _.each nodeLinks, (link) =>
-          nodesToAdd = _.pluck _.filter(instanceMap, nodeUuid: link.to, linkedToPrev: true), 'instanceId'
-          if link.type?
-            eventLinks[link.type] = [].concat eventLinks[link.type] || [], nodesToAdd
-          else
-            #old behavior
-            eventLinks['broadcast.sent'] = [].concat eventLinks['broadcast.sent'] || [], nodesToAdd
-            eventLinks['message.received'] = [].concat eventLinks['message.received'] || [], nodesToAdd
+          prevNanocytes = _.filter instanceMap, nodeUuid: link.to, linkedToPrev: true
+          _.each prevNanocytes, (nanocyte) =>
+            if config.eventType == 'configure'
+              eventLinks['configure.sent'].push nanocyte.instanceId
+            else
+              eventLinks['broadcast.sent'].push nanocyte.instanceId
+              eventLinks['message.received'].push nanocyte.instanceId
+
 
       _.each config.linkedTo, (templateLinkId) =>
         _.each instanceMap, (data, key) =>

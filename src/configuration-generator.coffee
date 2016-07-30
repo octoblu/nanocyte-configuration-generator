@@ -19,6 +19,9 @@ VIRTUAL_NODES =
   'engine-output':
     config: {}
     data: {}
+  'engine-update':
+    config: {}
+    data: {}
   'engine-data':
     config: {}
     data: {}
@@ -129,6 +132,8 @@ class ConfigurationGenerator
         config = @_buildEngineOutputConfig {flowData, flowToken}
 
         flowConfig['engine-output'].config = config
+        flowConfig['engine-update'].config = config
+
         flowConfig['engine-output'].config.nodeMap = @_buildNodeMap instanceMap
 
         flowStopConfig = _.cloneDeep flowConfig
@@ -174,6 +179,7 @@ class ConfigurationGenerator
       type = config.category
       type = config.type.replace('operation:', '') if type == 'operation'
       type = 'device' if @_isDevice config
+      type = 'device-configure' if @_isDeviceConfigure config
       nodeFromRegistry = nodeRegistry[type] ? {}
 
       composedOf = _.cloneDeep(nodeFromRegistry.composedOf) ? {}
@@ -248,6 +254,9 @@ class ConfigurationGenerator
     return true if item.class == 'device-flow'
     return false
 
+  _isDeviceConfigure: (item) =>
+    @_isDevice(item) && item.eventType == 'configure'
+
   _buildLinks: (links, instanceMap) =>
     result = {}
     _.each instanceMap, (config, instanceId) =>
@@ -294,7 +303,8 @@ class ConfigurationGenerator
             linkedTo.push key
 
       linkedTo.push 'engine-output' if config.linkedToOutput
-      linkedTo.push 'engine-pulse' if config.linkedToNext || config.linkedToPulse || config.linkedToOutput
+      linkedTo.push 'engine-update' if config.linkedToUpdate
+      linkedTo.push 'engine-pulse' if config.linkedToNext || config.linkedToPulse || config.linkedToOutput || config.linkedToUpdate
       linkedTo.push 'engine-data' if config.linkedToData
       linkedTo.push 'engine-debug' if config.debug
 
@@ -308,6 +318,9 @@ class ConfigurationGenerator
 
     result['engine-output'] =
       type: 'engine-output'
+      linkedTo: []
+    result['engine-update'] =
+      type: 'engine-update'
       linkedTo: []
     result['engine-debug'] =
       type: 'engine-debug'

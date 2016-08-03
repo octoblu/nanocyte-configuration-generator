@@ -242,7 +242,14 @@ class ConfigurationGenerator
       return callback null, _.map(devices, 'uuid')
 
   _getSubscribeDevices: (flowNodes) =>
-    return 'broadcast.sent': @_getDeviceUuids(flowNodes)
+    flowNodesByEventType = _.groupBy flowNodes, (node) =>
+      return 'not-a-device' unless @_isDevice node
+      return node.eventType || 'message'
+
+    return {
+      'broadcast.sent': @_getDeviceUuids(flowNodesByEventType['message'])
+      'configure.sent': @_getDeviceUuids(flowNodesByEventType['configure'])
+    }
 
   _getDeviceUuids: (flowNodes) =>
     # devices = _.where flowNodes, category: 'device'

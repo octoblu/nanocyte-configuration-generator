@@ -207,6 +207,9 @@ describe 'ConfigurationGenerator', ->
           'broadcast.sent': [
             'c0e0955e-6ab4-4182-8d56-1c8c35a5106d'
           ]
+          'configure.sent': [
+            '2'
+          ]
 
       it 'should set node-flow-metric-instance', ->
         expect(@flowConfig['node-flow-metric-instance'].config).containSubset

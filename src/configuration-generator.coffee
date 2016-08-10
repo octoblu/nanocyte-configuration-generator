@@ -290,7 +290,6 @@ class ConfigurationGenerator
         result['engine-stop'].linkedTo.push instanceId
 
       if config.linkedToNext
-        console.log config.isDevice
         eventLinks = @_getEventLinks {config, nodeLinks, instanceMap} if config.isDevice
         linkedTo = @_getLinkedTo {nodeLinks, instanceMap} unless config.isDevice
 

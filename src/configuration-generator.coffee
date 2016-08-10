@@ -199,6 +199,7 @@ class ConfigurationGenerator
         composedConfig.transactionGroupId = transactionGroupId if linkedToData?
         composedConfig.instanceId = instanceId
         composedConfig.eventType = config.eventType
+        composedConfig.isDevice = @_isDevice config
         instanceMap[instanceId] = composedConfig
 
     return instanceMap
@@ -270,11 +271,6 @@ class ConfigurationGenerator
       nodeLinks = _.filter links, from: config.nodeUuid
       templateLinks = config.linkedTo
       linkedTo = []
-      eventLinks =
-        'broadcast.sent': []
-        'message.received': []
-        'configure.sent': []
-
       if config.linkedToInput
         result[config.nodeUuid] ?=
           type: 'engine-input'
@@ -294,15 +290,9 @@ class ConfigurationGenerator
         result['engine-stop'].linkedTo.push instanceId
 
       if config.linkedToNext
-        _.each nodeLinks, (link) =>
-          prevNanocytes = _.filter instanceMap, nodeUuid: link.to, linkedToPrev: true
-          _.each prevNanocytes, (nanocyte) =>
-            if config.eventType == 'configure'
-              eventLinks['configure.sent'].push nanocyte.instanceId
-            else
-              eventLinks['broadcast.sent'].push nanocyte.instanceId
-              eventLinks['message.received'].push nanocyte.instanceId
-
+        console.log config.isDevice
+        eventLinks = @_getEventLinks {config, nodeLinks, instanceMap} if config.isDevice
+        linkedTo = @_getLinkedTo {nodeLinks, instanceMap} unless config.isDevice
 
       _.each config.linkedTo, (templateLinkId) =>
         _.each instanceMap, (data, key) =>
@@ -340,6 +330,32 @@ class ConfigurationGenerator
       linkedTo: []
 
     return result
+
+  _getEventLinks: ({config, nodeLinks, instanceMap}) =>
+    eventLinks =
+      'broadcast.sent': []
+      'message.received': []
+      'configure.sent': []
+
+    _.each nodeLinks, (link) =>
+      prevNanocytes = _.filter instanceMap, nodeUuid: link.to, linkedToPrev: true
+      _.each prevNanocytes, (nanocyte) =>
+        if config.eventType == 'configure'
+          eventLinks['configure.sent'].push nanocyte.instanceId
+        else
+          eventLinks['broadcast.sent'].push nanocyte.instanceId
+          eventLinks['message.received'].push nanocyte.instanceId
+
+    return eventLinks
+
+  _getLinkedTo: ({nodeLinks, instanceMap}) =>
+    linkedTo = []
+    linkUuids = _.pluck nodeLinks, 'to'
+    _.each instanceMap, (data, key) =>
+      if _.contains linkUuids, data.nodeUuid
+        linkedTo.push key if data.linkedToPrev
+
+    return linkedTo
 
   _legacyConversion: (config) =>
     if config.type == 'operation:debounce'

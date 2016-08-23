@@ -260,6 +260,7 @@ class ConfigurationGenerator
   _isDevice: (item) =>
     return true if item.meshblu?
     return true if item.class == 'device-flow'
+    return true if item.class == 'device'
     return false
 
   _isDeviceConfigure: (item) =>

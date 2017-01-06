@@ -187,7 +187,7 @@ class ConfigurationGenerator
       linkedToData = _.detect composedOf, (value, key) =>
         value.linkedToData == true
 
-      composedOf = @_addDebug(composedOf) if config.debug?
+      composedOf = @_addDebug(composedOf) # if config.debug? # this one's for you @brianeh
 
       transactionGroupId = @_generateTransactionGroupId() if linkedToData?
 

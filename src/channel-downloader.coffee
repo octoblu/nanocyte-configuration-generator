@@ -11,12 +11,15 @@ class ChannelDownloader
     @_checkEtag = _.throttle @_checkEtagImmediately, 60*1000*5, leading: true, trailing: false
 
   setOptions: (options) =>
+    return if _.isEmpty options.accessKeyId
     @s3client ?= s3.createClient
       s3Options:
         accessKeyId:     options.accessKeyId
         secretAccessKey: options.secretAccessKey
 
   update: (callback) =>
+    return callback null, {} unless @s3client?
+
     @_checkEtag()
     return callback null, @data if @cached
 
